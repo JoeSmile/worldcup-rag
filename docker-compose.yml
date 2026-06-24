@@ -1,0 +1,25 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: worldcup-rag-postgres
+    restart: unless-stopped
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-memoryos}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-memoryos}
+      POSTGRES_DB: ${POSTGRES_DB:-memoryos}
+      TZ: UTC
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-memoryos} -d ${POSTGRES_DB:-memoryos}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  postgres-data:
+    name: worldcup_rag_postgres_data
+    external: true
