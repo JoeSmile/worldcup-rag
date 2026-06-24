@@ -51,3 +51,6 @@ etl/data/bronze/**/_profile/
 build/
 dist/
 *.egg-info/
+
+# Benchmark outputs
+benchmark/result.json

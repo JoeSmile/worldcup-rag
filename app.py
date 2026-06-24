@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from agent import chat
-from tools import execute_sql
+from etl.data.db import execute_query
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +27,10 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     answer: str
+    tool_name: Optional[str] = None
+    tools_used: Optional[List[str]] = None
+    sql_generated: Optional[str] = None
+    usage: Optional[Dict[str, int]] = None
 
 @app.post("/chat", response_model=ChatResponse)
 async def chat_endpoint(request: ChatRequest):
@@ -35,8 +39,7 @@ async def chat_endpoint(request: ChatRequest):
         raise HTTPException(status_code=400, detail="query cannot be empty")
 
     try:
-        answer = await run_in_threadpool(chat, query, request.history)
-        return {"answer": answer}
+        return await run_in_threadpool(chat, query, request.history)
     except Exception as exc:
         logger.exception("chat request failed")
         raise HTTPException(status_code=500, detail=str(exc)) from exc
@@ -48,7 +51,7 @@ async def health():
 @app.get("/ready")
 async def ready():
     try:
-        result = await run_in_threadpool(execute_sql, "SELECT 1")
+        result = await run_in_threadpool(execute_query, "SELECT 1")
     except Exception as exc:
         logger.exception("database readiness check failed")
         raise HTTPException(status_code=503, detail=str(exc)) from exc

@@ -1,0 +1,1360 @@
+[
+  {
+    "player_id": "P-14758",
+    "canonical": "Lionel Messi",
+    "teams": [
+      "ARG"
+    ],
+    "aliases": [
+      "Lionel Messi",
+      "梅西",
+      "里奥·梅西",
+      "利昂内尔·梅西",
+      "梅老板",
+      "煤球王",
+      "小跳蚤",
+      "GOAT",
+      "Messi"
+    ]
+  },
+  {
+    "player_id": "P-80404",
+    "canonical": "Diego Maradona",
+    "teams": [
+      "ARG"
+    ],
+    "aliases": [
+      "Diego Maradona",
+      "马拉多纳",
+      "迭戈·马拉多纳",
+      "球王",
+      "上帝之手",
+      "世纪球王",
+      "老马",
+      "Maradona"
+    ]
+  },
+  {
+    "player_id": "P-35082",
+    "canonical": "Mario Kempes",
+    "teams": [
+      "ARG"
+    ],
+    "aliases": [
+      "Mario Kempes",
+      "肯佩斯",
+      "马里奥·肯佩斯",
+      "Kempes"
+    ]
+  },
+  {
+    "player_id": "P-84542",
+    "canonical": "Gabriel Batistuta",
+    "teams": [
+      "ARG"
+    ],
+    "aliases": [
+      "Gabriel Batistuta",
+      "巴蒂斯图塔",
+      "加布里埃尔·巴蒂斯图塔",
+      "战神",
+      "Bati",
+      "巴蒂"
+    ]
+  },
+  {
+    "player_id": "P-42113",
+    "canonical": "Ángel Di María",
+    "teams": [
+      "ARG"
+    ],
+    "aliases": [
+      "Ángel Di María",
+      "迪马利亚",
+      "安赫尔·迪马利亚",
+      "天使",
+      "Di María"
+    ]
+  },
+  {
+    "player_id": "P-77063",
+    "canonical": "Javier Mascherano",
+    "teams": [
+      "ARG"
+    ],
+    "aliases": [
+      "Javier Mascherano",
+      "马斯切拉诺",
+      "哈维尔·马斯切拉诺",
+      "小马哥",
+      "Mascherano"
+    ]
+  },
+  {
+    "player_id": "P-36870",
+    "canonical": "Sergio Agüero",
+    "teams": [
+      "ARG"
+    ],
+    "aliases": [
+      "Sergio Agüero",
+      "阿圭罗",
+      "塞尔吉奥·阿圭罗",
+      "Kun",
+      "阿昆",
+      "Agüero"
+    ]
+  },
+  {
+    "player_id": "P-29080",
+    "canonical": "Carlos Tevez",
+    "teams": [
+      "ARG"
+    ],
+    "aliases": [
+      "Carlos Tevez",
+      "特维斯",
+      "卡洛斯·特维斯",
+      "野兽",
+      "Tevez"
+    ]
+  },
+  {
+    "player_id": "P-38906",
+    "canonical": "Pelé",
+    "teams": [
+      "BRA"
+    ],
+    "aliases": [
+      "Pelé",
+      "贝利",
+      "球王",
+      "黑珍珠",
+      "乌鸦嘴",
+      "Pele"
+    ]
+  },
+  {
+    "player_id": "P-62722",
+    "canonical": "Ronaldo",
+    "teams": [
+      "BRA"
+    ],
+    "aliases": [
+      "Ronaldo",
+      "罗纳尔多",
+      "大罗",
+      "外星人",
+      "现象",
+      "R9"
+    ]
+  },
+  {
+    "player_id": "P-87008",
+    "canonical": "Neymar",
+    "teams": [
+      "BRA"
+    ],
+    "aliases": [
+      "Neymar",
+      "内马尔",
+      "马儿",
+      "内少",
+      "Neymar Jr."
+    ]
+  },
+  {
+    "player_id": "P-74261",
+    "canonical": "Rivaldo",
+    "teams": [
+      "BRA"
+    ],
+    "aliases": [
+      "Rivaldo",
+      "里瓦尔多",
+      "Rivaldo"
+    ]
+  },
+  {
+    "player_id": "P-61251",
+    "canonical": "Romário",
+    "teams": [
+      "BRA"
+    ],
+    "aliases": [
+      "Romário",
+      "罗马里奥",
+      "独狼",
+      "Romario"
+    ]
+  },
+  {
+    "player_id": "P-57361",
+    "canonical": "Ronaldinho",
+    "teams": [
+      "BRA"
+    ],
+    "aliases": [
+      "Ronaldinho",
+      "罗纳尔迪尼奥",
+      "小罗",
+      "足球精灵",
+      "R10"
+    ]
+  },
+  {
+    "player_id": "P-58388",
+    "canonical": "Kaká",
+    "teams": [
+      "BRA"
+    ],
+    "aliases": [
+      "Kaká",
+      "卡卡",
+      "Kaka"
+    ]
+  },
+  {
+    "player_id": "P-91718",
+    "canonical": "Cafu",
+    "teams": [
+      "BRA"
+    ],
+    "aliases": [
+      "Cafu",
+      "卡福",
+      "Cafu"
+    ]
+  },
+  {
+    "player_id": "P-85176",
+    "canonical": "Roberto Carlos",
+    "teams": [
+      "BRA"
+    ],
+    "aliases": [
+      "Roberto Carlos",
+      "罗伯托·卡洛斯",
+      "卡洛斯",
+      "Roberto Carlos"
+    ]
+  },
+  {
+    "player_id": "P-70650",
+    "canonical": "Marcelo",
+    "teams": [
+      "BRA"
+    ],
+    "aliases": [
+      "Marcelo",
+      "马塞洛",
+      "Marcelo"
+    ]
+  },
+  {
+    "player_id": "P-09441",
+    "canonical": "Dani Alves",
+    "teams": [
+      "BRA"
+    ],
+    "aliases": [
+      "Dani Alves",
+      "阿尔维斯",
+      "丹尼·阿尔维斯",
+      "Dani Alves"
+    ]
+  },
+  {
+    "player_id": "P-46080",
+    "canonical": "Garrincha",
+    "teams": [
+      "BRA"
+    ],
+    "aliases": [
+      "Garrincha",
+      "加林查",
+      "小鸟",
+      "盘带之王",
+      "Garrincha"
+    ]
+  },
+  {
+    "player_id": "P-77430",
+    "canonical": "Jairzinho",
+    "teams": [
+      "BRA"
+    ],
+    "aliases": [
+      "Jairzinho",
+      "雅伊尔津霍",
+      "Jairzinho"
+    ]
+  },
+  {
+    "player_id": "P-78605",
+    "canonical": "Sócrates",
+    "teams": [
+      "BRA"
+    ],
+    "aliases": [
+      "Sócrates",
+      "苏格拉底",
+      "Socrates"
+    ]
+  },
+  {
+    "player_id": "P-37483",
+    "canonical": "Zico",
+    "teams": [
+      "BRA"
+    ],
+    "aliases": [
+      "Zico",
+      "济科",
+      "白贝利",
+      "Zico"
+    ]
+  },
+  {
+    "player_id": "P-25829",
+    "canonical": "Carlos Alberto Torres",
+    "teams": [
+      "BRA"
+    ],
+    "aliases": [
+      "Carlos Alberto Torres",
+      "卡洛斯·阿尔贝托",
+      "Carlos Alberto"
+    ]
+  },
+  {
+    "player_id": "P-07458",
+    "canonical": "Marta",
+    "teams": [
+      "BRA"
+    ],
+    "aliases": [
+      "Marta",
+      "玛塔",
+      "女球王",
+      "Marta"
+    ]
+  },
+  {
+    "player_id": "P-70442",
+    "canonical": "Cristiano Ronaldo",
+    "teams": [
+      "PRT"
+    ],
+    "aliases": [
+      "Cristiano Ronaldo",
+      "克里斯蒂亚诺·罗纳尔多",
+      "C罗",
+      "罗总",
+      "总裁",
+      "CR7"
+    ]
+  },
+  {
+    "player_id": "P-57496",
+    "canonical": "Luís Figo",
+    "teams": [
+      "PRT"
+    ],
+    "aliases": [
+      "Luís Figo",
+      "菲戈",
+      "路易斯·菲戈",
+      "Figo"
+    ]
+  },
+  {
+    "player_id": "P-74747",
+    "canonical": "Eusébio",
+    "teams": [
+      "PRT"
+    ],
+    "aliases": [
+      "Eusébio",
+      "尤西比奥",
+      "黑豹",
+      "Eusebio"
+    ]
+  },
+  {
+    "player_id": "P-62808",
+    "canonical": "Rui Costa",
+    "teams": [
+      "PRT"
+    ],
+    "aliases": [
+      "Rui Costa",
+      "鲁伊·科斯塔",
+      "Rui Costa"
+    ]
+  },
+  {
+    "player_id": "P-81972",
+    "canonical": "Pepe",
+    "teams": [
+      "PRT"
+    ],
+    "aliases": [
+      "Pepe",
+      "佩佩",
+      "武僧",
+      "Pepe"
+    ]
+  },
+  {
+    "player_id": "P-29415",
+    "canonical": "Xavi",
+    "teams": [
+      "ESP"
+    ],
+    "aliases": [
+      "Xavi",
+      "哈维",
+      "大脑",
+      "Xavi"
+    ]
+  },
+  {
+    "player_id": "P-56330",
+    "canonical": "Andrés Iniesta",
+    "teams": [
+      "ESP"
+    ],
+    "aliases": [
+      "Andrés Iniesta",
+      "伊涅斯塔",
+      "安德烈斯·伊涅斯塔",
+      "小白",
+      "Iniesta"
+    ]
+  },
+  {
+    "player_id": "P-61793",
+    "canonical": "Iker Casillas",
+    "teams": [
+      "ESP"
+    ],
+    "aliases": [
+      "Iker Casillas",
+      "卡西利亚斯",
+      "卡西",
+      "圣卡西",
+      "Casillas"
+    ]
+  },
+  {
+    "player_id": "P-24556",
+    "canonical": "Raúl",
+    "teams": [
+      "ESP"
+    ],
+    "aliases": [
+      "Raúl",
+      "劳尔",
+      "指环王",
+      "Raul"
+    ]
+  },
+  {
+    "player_id": "P-30486",
+    "canonical": "Luis Suárez",
+    "teams": [
+      "URY"
+    ],
+    "aliases": [
+      "Luis Suárez",
+      "苏亚雷斯",
+      "路易斯·苏亚雷斯",
+      "苏牙",
+      "Suárez"
+    ]
+  },
+  {
+    "player_id": "P-72864",
+    "canonical": "Franz Beckenbauer",
+    "teams": [
+      "DEU"
+    ],
+    "aliases": [
+      "Franz Beckenbauer",
+      "贝肯鲍尔",
+      "弗朗茨·贝肯鲍尔",
+      "足球皇帝",
+      "Beckenbauer"
+    ]
+  },
+  {
+    "player_id": "P-49502",
+    "canonical": "Lothar Matthäus",
+    "teams": [
+      "DEU"
+    ],
+    "aliases": [
+      "Lothar Matthäus",
+      "马特乌斯",
+      "洛塔尔·马特乌斯",
+      "Matthäus"
+    ]
+  },
+  {
+    "player_id": "P-33751",
+    "canonical": "Oliver Kahn",
+    "teams": [
+      "DEU"
+    ],
+    "aliases": [
+      "Oliver Kahn",
+      "卡恩",
+      "奥利弗·卡恩",
+      "狮子王",
+      "Kahn"
+    ]
+  },
+  {
+    "player_id": "P-18599",
+    "canonical": "Philipp Lahm",
+    "teams": [
+      "DEU"
+    ],
+    "aliases": [
+      "Philipp Lahm",
+      "拉姆",
+      "菲利普·拉姆",
+      "队短",
+      "Lahm"
+    ]
+  },
+  {
+    "player_id": "P-28154",
+    "canonical": "Thomas Müller",
+    "teams": [
+      "DEU"
+    ],
+    "aliases": [
+      "Thomas Müller",
+      "托马斯·穆勒",
+      "穆勒",
+      "二娃",
+      "Müller"
+    ]
+  },
+  {
+    "player_id": "P-72441",
+    "canonical": "Gerd Müller",
+    "teams": [
+      "DEU"
+    ],
+    "aliases": [
+      "Gerd Müller",
+      "盖德·穆勒",
+      "轰炸机",
+      "Müller"
+    ]
+  },
+  {
+    "player_id": "P-19408",
+    "canonical": "Manuel Neuer",
+    "teams": [
+      "DEU"
+    ],
+    "aliases": [
+      "Manuel Neuer",
+      "诺伊尔",
+      "曼努埃尔·诺伊尔",
+      "门卫",
+      "Neuer"
+    ]
+  },
+  {
+    "player_id": "P-27787",
+    "canonical": "Miroslav Klose",
+    "teams": [
+      "DEU"
+    ],
+    "aliases": [
+      "Miroslav Klose",
+      "克洛泽",
+      "米罗斯拉夫·克洛泽",
+      "K神",
+      "Klose"
+    ]
+  },
+  {
+    "player_id": "P-39356",
+    "canonical": "Toni Kroos",
+    "teams": [
+      "DEU"
+    ],
+    "aliases": [
+      "Toni Kroos",
+      "克罗斯",
+      "托尼·克罗斯",
+      "宽哥",
+      "Kroos"
+    ]
+  },
+  {
+    "player_id": "P-81049",
+    "canonical": "David Beckham",
+    "teams": [
+      "ENG"
+    ],
+    "aliases": [
+      "David Beckham",
+      "贝克汉姆",
+      "大卫·贝克汉姆",
+      "小贝",
+      "万人迷",
+      "贝帅",
+      "Beckham"
+    ]
+  },
+  {
+    "player_id": "P-99967",
+    "canonical": "Wayne Rooney",
+    "teams": [
+      "ENG"
+    ],
+    "aliases": [
+      "Wayne Rooney",
+      "鲁尼",
+      "韦恩·鲁尼",
+      "鲁小胖",
+      "Rooney"
+    ]
+  },
+  {
+    "player_id": "P-08601",
+    "canonical": "Bobby Charlton",
+    "teams": [
+      "ENG"
+    ],
+    "aliases": [
+      "Bobby Charlton",
+      "博比·查尔顿",
+      "查尔顿爵士",
+      "Charlton"
+    ]
+  },
+  {
+    "player_id": "P-52816",
+    "canonical": "Bobby Moore",
+    "teams": [
+      "ENG"
+    ],
+    "aliases": [
+      "Bobby Moore",
+      "博比·穆尔",
+      "穆尔",
+      "Moore"
+    ]
+  },
+  {
+    "player_id": "P-36651",
+    "canonical": "Gary Lineker",
+    "teams": [
+      "ENG"
+    ],
+    "aliases": [
+      "Gary Lineker",
+      "莱因克尔",
+      "加里·莱因克尔",
+      "Lineker"
+    ]
+  },
+  {
+    "player_id": "P-63416",
+    "canonical": "Alan Shearer",
+    "teams": [
+      "ENG"
+    ],
+    "aliases": [
+      "Alan Shearer",
+      "希勒",
+      "阿兰·希勒",
+      "Shearer"
+    ]
+  },
+  {
+    "player_id": "P-62157",
+    "canonical": "Steven Gerrard",
+    "teams": [
+      "ENG"
+    ],
+    "aliases": [
+      "Steven Gerrard",
+      "杰拉德",
+      "史蒂文·杰拉德",
+      "Gerrard"
+    ]
+  },
+  {
+    "player_id": "P-65534",
+    "canonical": "Frank Lampard",
+    "teams": [
+      "ENG"
+    ],
+    "aliases": [
+      "Frank Lampard",
+      "兰帕德",
+      "弗兰克·兰帕德",
+      "Lampard"
+    ]
+  },
+  {
+    "player_id": "P-58924",
+    "canonical": "Harry Kane",
+    "teams": [
+      "ENG"
+    ],
+    "aliases": [
+      "Harry Kane",
+      "凯恩",
+      "哈里·凯恩",
+      "Kane"
+    ]
+  },
+  {
+    "player_id": "P-56430",
+    "canonical": "Zinedine Zidane",
+    "teams": [
+      "FRA"
+    ],
+    "aliases": [
+      "Zinedine Zidane",
+      "齐达内",
+      "齐祖",
+      "齐玄宗",
+      "Zidane"
+    ]
+  },
+  {
+    "player_id": "P-51395",
+    "canonical": "Thierry Henry",
+    "teams": [
+      "FRA"
+    ],
+    "aliases": [
+      "Thierry Henry",
+      "亨利",
+      "蒂埃里·亨利",
+      "枪王",
+      "大帝",
+      "Henry"
+    ]
+  },
+  {
+    "player_id": "P-64077",
+    "canonical": "Kylian Mbappé",
+    "teams": [
+      "FRA"
+    ],
+    "aliases": [
+      "Kylian Mbappé",
+      "姆巴佩",
+      "基利安·姆巴佩",
+      "姆总",
+      "神龟",
+      "Mbappé"
+    ]
+  },
+  {
+    "player_id": "P-08939",
+    "canonical": "Michel Platini",
+    "teams": [
+      "FRA"
+    ],
+    "aliases": [
+      "Michel Platini",
+      "普拉蒂尼",
+      "米歇尔·普拉蒂尼",
+      "Platini"
+    ]
+  },
+  {
+    "player_id": "P-77939",
+    "canonical": "Just Fontaine",
+    "teams": [
+      "FRA"
+    ],
+    "aliases": [
+      "Just Fontaine",
+      "方丹",
+      "朱斯特·方丹",
+      "Fontaine"
+    ]
+  },
+  {
+    "player_id": "P-90908",
+    "canonical": "Antoine Griezmann",
+    "teams": [
+      "FRA"
+    ],
+    "aliases": [
+      "Antoine Griezmann",
+      "格列兹曼",
+      "安托万·格列兹曼",
+      "格子",
+      "Griezmann"
+    ]
+  },
+  {
+    "player_id": "P-30711",
+    "canonical": "Hugo Lloris",
+    "teams": [
+      "FRA"
+    ],
+    "aliases": [
+      "Hugo Lloris",
+      "洛里",
+      "雨果·洛里",
+      "Lloris"
+    ]
+  },
+  {
+    "player_id": "P-17509",
+    "canonical": "Paul Pogba",
+    "teams": [
+      "FRA"
+    ],
+    "aliases": [
+      "Paul Pogba",
+      "博格巴",
+      "保罗·博格巴",
+      "Pogba"
+    ]
+  },
+  {
+    "player_id": "P-98287",
+    "canonical": "N'Golo Kanté",
+    "teams": [
+      "FRA"
+    ],
+    "aliases": [
+      "N'Golo Kanté",
+      "坎特",
+      "恩戈洛·坎特",
+      "Kanté"
+    ]
+  },
+  {
+    "player_id": "P-96540",
+    "canonical": "Patrick Vieira",
+    "teams": [
+      "FRA"
+    ],
+    "aliases": [
+      "Patrick Vieira",
+      "维埃拉",
+      "帕特里克·维埃拉",
+      "Vieira"
+    ]
+  },
+  {
+    "player_id": "P-55991",
+    "canonical": "Fabien Barthez",
+    "teams": [
+      "FRA"
+    ],
+    "aliases": [
+      "Fabien Barthez",
+      "巴特兹",
+      "法比安·巴特兹",
+      "Barthez"
+    ]
+  },
+  {
+    "player_id": "P-74952",
+    "canonical": "Laurent Blanc",
+    "teams": [
+      "FRA"
+    ],
+    "aliases": [
+      "Laurent Blanc",
+      "布兰科",
+      "洛朗·布兰科",
+      "Blanc"
+    ]
+  },
+  {
+    "player_id": "P-79380",
+    "canonical": "Marcel Desailly",
+    "teams": [
+      "FRA"
+    ],
+    "aliases": [
+      "Marcel Desailly",
+      "德塞利",
+      "马塞尔·德塞利",
+      "Desailly"
+    ]
+  },
+  {
+    "player_id": "P-56947",
+    "canonical": "Lilian Thuram",
+    "teams": [
+      "FRA"
+    ],
+    "aliases": [
+      "Lilian Thuram",
+      "图拉姆",
+      "利利安·图拉姆",
+      "Thuram"
+    ]
+  },
+  {
+    "player_id": "P-43222",
+    "canonical": "Paolo Maldini",
+    "teams": [
+      "ITA"
+    ],
+    "aliases": [
+      "Paolo Maldini",
+      "马尔蒂尼",
+      "保罗·马尔蒂尼",
+      "马队",
+      "Maldini"
+    ]
+  },
+  {
+    "player_id": "P-11392",
+    "canonical": "Gianluigi Buffon",
+    "teams": [
+      "ITA"
+    ],
+    "aliases": [
+      "Gianluigi Buffon",
+      "布冯",
+      "吉安路易吉·布冯",
+      "小将",
+      "Buffon"
+    ]
+  },
+  {
+    "player_id": "P-88863",
+    "canonical": "Fabio Cannavaro",
+    "teams": [
+      "ITA"
+    ],
+    "aliases": [
+      "Fabio Cannavaro",
+      "卡纳瓦罗",
+      "法比奥·卡纳瓦罗",
+      "Cannavaro"
+    ]
+  },
+  {
+    "player_id": "P-42038",
+    "canonical": "Francesco Totti",
+    "teams": [
+      "ITA"
+    ],
+    "aliases": [
+      "Francesco Totti",
+      "托蒂",
+      "弗朗切斯科·托蒂",
+      "狼王",
+      "罗马王子",
+      "Totti"
+    ]
+  },
+  {
+    "player_id": "P-83836",
+    "canonical": "Alessandro Del Piero",
+    "teams": [
+      "ITA"
+    ],
+    "aliases": [
+      "Alessandro Del Piero",
+      "德尔·皮耶罗",
+      "皮耶罗",
+      "斑马王子",
+      "Del Piero"
+    ]
+  },
+  {
+    "player_id": "P-78756",
+    "canonical": "Roberto Baggio",
+    "teams": [
+      "ITA"
+    ],
+    "aliases": [
+      "Roberto Baggio",
+      "巴乔",
+      "罗伯特·巴乔",
+      "忧郁王子",
+      "神奇马尾辫",
+      "Baggio"
+    ]
+  },
+  {
+    "player_id": "P-42920",
+    "canonical": "Franco Baresi",
+    "teams": [
+      "ITA"
+    ],
+    "aliases": [
+      "Franco Baresi",
+      "巴雷西",
+      "弗兰科·巴雷西",
+      "Baresi"
+    ]
+  },
+  {
+    "player_id": "P-99537",
+    "canonical": "Andrea Pirlo",
+    "teams": [
+      "ITA"
+    ],
+    "aliases": [
+      "Andrea Pirlo",
+      "皮尔洛",
+      "安德烈亚·皮尔洛",
+      "睡皮",
+      "大师",
+      "Pirlo"
+    ]
+  },
+  {
+    "player_id": "P-48831",
+    "canonical": "Dino Zoff",
+    "teams": [
+      "ITA"
+    ],
+    "aliases": [
+      "Dino Zoff",
+      "佐夫",
+      "迪诺·佐夫",
+      "Zoff"
+    ]
+  },
+  {
+    "player_id": "P-91717",
+    "canonical": "Paolo Rossi",
+    "teams": [
+      "ITA"
+    ],
+    "aliases": [
+      "Paolo Rossi",
+      "罗西",
+      "保罗·罗西",
+      "金童",
+      "Rossi"
+    ]
+  },
+  {
+    "player_id": "P-50564",
+    "canonical": "Johan Cruyff",
+    "teams": [
+      "NLD"
+    ],
+    "aliases": [
+      "Johan Cruyff",
+      "克鲁伊夫",
+      "约翰·克鲁伊夫",
+      "克圣",
+      "飞人",
+      "Cruyff"
+    ]
+  },
+  {
+    "player_id": "P-22409",
+    "canonical": "Dennis Bergkamp",
+    "teams": [
+      "NLD"
+    ],
+    "aliases": [
+      "Dennis Bergkamp",
+      "博格坎普",
+      "丹尼斯·博格坎普",
+      "冰王子",
+      "Bergkamp"
+    ]
+  },
+  {
+    "player_id": "P-76874",
+    "canonical": "Marco van Basten",
+    "teams": [
+      "NLD"
+    ],
+    "aliases": [
+      "Marco van Basten",
+      "范巴斯滕",
+      "马尔科·范巴斯滕",
+      "天鹅王子",
+      "Van Basten"
+    ]
+  },
+  {
+    "player_id": "P-32830",
+    "canonical": "Ruud Gullit",
+    "teams": [
+      "NLD"
+    ],
+    "aliases": [
+      "Ruud Gullit",
+      "古利特",
+      "路德·古利特",
+      "辫帅",
+      "Gullit"
+    ]
+  },
+  {
+    "player_id": "P-03013",
+    "canonical": "Ruud van Nistelrooy",
+    "teams": [
+      "NLD"
+    ],
+    "aliases": [
+      "Ruud van Nistelrooy",
+      "范尼斯特鲁伊",
+      "范尼",
+      "禁区之王",
+      "Van Nistelrooy"
+    ]
+  },
+  {
+    "player_id": "P-88946",
+    "canonical": "Clarence Seedorf",
+    "teams": [
+      "NLD"
+    ],
+    "aliases": [
+      "Clarence Seedorf",
+      "西多夫",
+      "克拉伦斯·西多夫",
+      "Seedorf"
+    ]
+  },
+  {
+    "player_id": "P-26572",
+    "canonical": "Edwin van der Sar",
+    "teams": [
+      "NLD"
+    ],
+    "aliases": [
+      "Edwin van der Sar",
+      "范德萨",
+      "埃德温·范德萨",
+      "Van der Sar"
+    ]
+  },
+  {
+    "player_id": "P-23705",
+    "canonical": "Arjen Robben",
+    "teams": [
+      "NLD"
+    ],
+    "aliases": [
+      "Arjen Robben",
+      "罗本",
+      "阿尔扬·罗本",
+      "罗老汉",
+      "Robben"
+    ]
+  },
+  {
+    "player_id": "P-51336",
+    "canonical": "Wesley Sneijder",
+    "teams": [
+      "NLD"
+    ],
+    "aliases": [
+      "Wesley Sneijder",
+      "斯内德",
+      "韦斯利·斯内德",
+      "Sneijder"
+    ]
+  },
+  {
+    "player_id": "P-99934",
+    "canonical": "Robin van Persie",
+    "teams": [
+      "NLD"
+    ],
+    "aliases": [
+      "Robin van Persie",
+      "范佩西",
+      "罗宾·范佩西",
+      "Van Persie"
+    ]
+  },
+  {
+    "player_id": "P-59191",
+    "canonical": "Patrick Kluivert",
+    "teams": [
+      "NLD"
+    ],
+    "aliases": [
+      "Patrick Kluivert",
+      "克鲁伊维特",
+      "帕特里克·克鲁伊维特",
+      "Kluivert"
+    ]
+  },
+  {
+    "player_id": "P-56029",
+    "canonical": "Virgil van Dijk",
+    "teams": [
+      "NLD"
+    ],
+    "aliases": [
+      "Virgil van Dijk",
+      "范迪克",
+      "维吉尔·范迪克",
+      "Van Dijk"
+    ]
+  },
+  {
+    "player_id": "P-64760",
+    "canonical": "Pavel Nedvěd",
+    "teams": [
+      "CZE"
+    ],
+    "aliases": [
+      "Pavel Nedvěd",
+      "内德维德",
+      "帕维尔·内德维德",
+      "铁人",
+      "Nedvěd"
+    ]
+  },
+  {
+    "player_id": "P-29491",
+    "canonical": "Luka Modrić",
+    "teams": [
+      "HRV"
+    ],
+    "aliases": [
+      "Luka Modrić",
+      "莫德里奇",
+      "卢卡·莫德里奇",
+      "魔笛",
+      "Modrić"
+    ]
+  },
+  {
+    "player_id": "P-00549",
+    "canonical": "Robert Lewandowski",
+    "teams": [
+      "POL"
+    ],
+    "aliases": [
+      "Robert Lewandowski",
+      "莱万多夫斯基",
+      "莱万",
+      "Lewandowski"
+    ]
+  },
+  {
+    "player_id": "P-09317",
+    "canonical": "Lev Yashin",
+    "teams": [
+      "SUN"
+    ],
+    "aliases": [
+      "Lev Yashin",
+      "雅辛",
+      "列夫·雅辛",
+      "黑蜘蛛",
+      "八爪鱼",
+      "Yashin"
+    ]
+  },
+  {
+    "player_id": "P-61703",
+    "canonical": "Samuel Eto'o",
+    "teams": [
+      "CMR"
+    ],
+    "aliases": [
+      "Samuel Eto'o",
+      "埃托奥",
+      "塞缪尔·埃托奥",
+      "猎豹",
+      "Eto'o"
+    ]
+  },
+  {
+    "player_id": "P-99466",
+    "canonical": "Didier Drogba",
+    "teams": [
+      "CIV"
+    ],
+    "aliases": [
+      "Didier Drogba",
+      "德罗巴",
+      "迪迪埃·德罗巴",
+      "魔兽",
+      "Drogba"
+    ]
+  },
+  {
+    "player_id": "P-09349",
+    "canonical": "Hidetoshi Nakata",
+    "teams": [
+      "JPN"
+    ],
+    "aliases": [
+      "Hidetoshi Nakata",
+      "中田英寿",
+      "Nakata"
+    ]
+  },
+  {
+    "player_id": "P-25724",
+    "canonical": "Park Ji-sung",
+    "teams": [
+      "KOR"
+    ],
+    "aliases": [
+      "Park Ji-sung",
+      "朴智星",
+      "Park"
+    ]
+  },
+  {
+    "player_id": "P-77335",
+    "canonical": "Son Heung-min",
+    "teams": [
+      "KOR"
+    ],
+    "aliases": [
+      "Son Heung-min",
+      "孙兴慜",
+      "孙哥",
+      "亚洲一哥",
+      "Son"
+    ]
+  },
+  {
+    "player_id": "P-14903",
+    "canonical": "Wen Sun",
+    "teams": [
+      "CHN"
+    ],
+    "aliases": [
+      "Wen Sun",
+      "孙雯",
+      "孙文"
+    ]
+  },
+  {
+    "player_id": "P-89236",
+    "canonical": "Abby Wambach",
+    "teams": [
+      "USA"
+    ],
+    "aliases": [
+      "Abby Wambach",
+      "瓦姆巴赫",
+      "艾比·瓦姆巴赫",
+      "Wambach"
+    ]
+  }
+]

@@ -1,0 +1,141 @@
+[
+  {
+    "category": "球员生涯统计",
+    "question": "梅西在世界杯一共进了几个球？",
+    "expected_tool": "player_stats",
+    "expected_answer_contains": ["13", "十三"],
+    "expected_answer_contains_all": ["梅西"]
+  },
+  {
+    "category": "球员位置",
+    "question": "梅西在世界杯踢什么位置？",
+    "expected_tool": "player_stats",
+    "expected_answer_contains": ["FW", "前锋", "锋"],
+    "expected_answer_contains_all": ["梅西"]
+  },
+  {
+    "category": "比赛统计",
+    "question": "2022年世界杯决赛一共有多少个进球？",
+    "expected_tool": "sql_query",
+    "expected_sql_contains": ["vw_match_summary", "M-2022-64"],
+    "expected_answer_contains": ["6", "六"]
+  },
+  {
+    "category": "球员对比",
+    "question": "梅西和C罗谁在世界杯的进球更多？",
+    "expected_tool": "player_stats",
+    "expected_answer_contains": ["13", "8", "更多"],
+    "expected_answer_contains_all": ["梅西"]
+  },
+  {
+    "category": "语义检索",
+    "question": "梅西世界杯表现怎么样？",
+    "expected_tool": "semantic_search",
+    "expected_answer_contains_all": ["梅西", "世界杯"]
+  },
+  {
+    "category": "传奇球员",
+    "question": "球王贝利在世界杯一共进了几个球？",
+    "expected_tool": "player_stats",
+    "expected_answer_contains": ["12", "十二", "Pelé"],
+    "expected_answer_contains_all": ["贝利"]
+  },
+  {
+    "category": "传奇球员",
+    "question": "贝利参加过几届世界杯？分别是哪些年份？",
+    "expected_tool": "player_stats",
+    "expected_answer_contains": ["4", "四", "1958", "1970"],
+    "expected_answer_contains_all": ["贝利"]
+  },
+  {
+    "category": "进球纪录",
+    "question": "男子世界杯历史进球最多的球员是谁？进了几个球？",
+    "expected_tool": "sql_query",
+    "expected_sql_contains": ["vw_player_summary", "goals"],
+    "expected_answer_groups": [["克洛泽", "Klose"], ["16", "十六"]]
+  },
+  {
+    "category": "传奇球员",
+    "question": "大罗（巴西罗纳尔多）世界杯生涯总共进了几个球？",
+    "expected_tool": "player_stats",
+    "expected_answer_groups": [["15", "十五"], ["罗纳尔多", "Ronaldo"]]
+  },
+  {
+    "category": "单届表现",
+    "question": "1998年世界杯大罗进了几个球？",
+    "expected_tool": "player_stats",
+    "expected_answer_groups": [["4", "四"], ["罗纳尔多", "Ronaldo"]],
+    "expected_answer_contains_all": ["1998"]
+  },
+  {
+    "category": "单届表现",
+    "question": "1998年世界杯大罗获得了什么个人奖项？",
+    "expected_tool": "player_stats",
+    "expected_answer_groups": [["金球", "Golden Ball"], ["1998"]]
+  },
+  {
+    "category": "门将奖项",
+    "question": "2014年世界杯最佳门将（金手套奖）得主是谁？",
+    "expected_tool": "player_stats",
+    "expected_answer_groups": [["诺伊尔", "Neuer"], ["金手套", "Golden Glove"]],
+    "expected_answer_contains_all": ["2014"]
+  },
+  {
+    "category": "位置标杆",
+    "question": "男子世界杯前锋位置进球最多的是谁？",
+    "expected_tool": "sql_query",
+    "expected_sql_contains": ["vw_player_summary", "FW"],
+    "expected_answer_groups": [["克洛泽", "Klose"], ["16"]]
+  },
+  {
+    "category": "位置标杆",
+    "question": "男子世界杯中场位置进球最多的是谁？",
+    "expected_tool": "sql_query",
+    "expected_sql_contains": ["vw_player_summary", "MF"],
+    "expected_answer_groups": [["库比拉斯", "Cubillas", "穆勒", "Müller"], ["10"]]
+  },
+  {
+    "category": "位置标杆",
+    "question": "男子世界杯后卫位置进球最多的是谁？",
+    "expected_tool": "sql_query",
+    "expected_sql_contains": ["vw_player_summary", "DF"],
+    "expected_answer_groups": [["马特乌斯", "Matthäus"], ["6"]]
+  },
+  {
+    "category": "球队荣誉",
+    "question": "意大利队夺得过世界杯冠军吗？",
+    "expected_tool": "semantic_search",
+    "expected_answer_contains": ["冠军", "夺冠", "获得", "是", "过"],
+    "expected_answer_contains_all": ["意大利"]
+  },
+  {
+    "category": "球队荣誉",
+    "question": "意大利一共几次世界杯冠军？分别是哪些年份？",
+    "expected_tool": "sql_query",
+    "expected_sql_contains": ["worldcup-tournaments", "Italy"],
+    "expected_answer_contains": ["1934", "1938", "1982", "2006"],
+    "expected_answer_groups": [["4", "四"]],
+    "expected_answer_contains_all": ["意大利"]
+  },
+  {
+    "category": "中国队",
+    "question": "中国男足参加过世界杯吗？是哪一届？",
+    "expected_tool": "semantic_search",
+    "expected_answer_contains": ["中国", "男足", "CHN"],
+    "expected_answer_contains_all": ["2002"]
+  },
+  {
+    "category": "中国队",
+    "question": "2002年世界杯中国队小组赛成绩怎么样？",
+    "expected_tool": "sql_query",
+    "expected_sql_contains": ["vw_match_summary", "China", "2002"],
+    "expected_answer_contains": ["3", "三场", "0", "负", "败", "未进球"]
+  },
+  {
+    "category": "中国队",
+    "question": "中国女足在世界杯进球最多的球员是谁？进了几个球？",
+    "expected_tool": "sql_query",
+    "expected_sql_contains": ["vw_player_summary", "CHN"],
+    "expected_answer_groups": [["孙雯", "Wen Sun"], ["11", "十一"]]
+  }
+]
