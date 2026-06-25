@@ -7,6 +7,7 @@ from core.logger import get_logger, log_extra
 from core.post_chat_queue import enqueue_post_chat_tasks
 from core.queue_config import get_queue_config
 from core.query_cache import get_query_cache
+from core.security import SecurityFilter
 from workflows.registry import chat as workflow_chat
 
 logger = get_logger("agent")
@@ -27,7 +28,9 @@ def chat(
     if use_cache:
         cached, layer = get_query_cache().get(query)
         if cached is not None:
+            cached = SecurityFilter.redact_chat_result(cached)
             cached["cache_layer"] = layer
+            cached["cache_hit"] = True
             logger.info(
                 "query cache hit",
                 extra=log_extra(layer=layer, trace_id=trace_id),
@@ -41,6 +44,8 @@ def chat(
         trace_id=trace_id,
         session_id=session_id,
     )
+
+    result = SecurityFilter.redact_chat_result(result)
 
     if session_id:
         result["session_id"] = session_id

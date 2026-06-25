@@ -45,33 +45,48 @@
 
 football-rag/
 ├── core/
-│   ├── registry.py          # ToolRegistry
-│   ├── security.py          # SecurityPipeline
-│   
+│   ├── security.py          # 入站脱敏 / SQL 校验 / 出站扫描（正则 + 熵检测）
+│   ├── security_config.py   # config.yaml + SECURITY_* 环境变量
+│   ├── middleware.py        # /chat 安全中间件
+│   ├── query_cache.py       # L1/L2/语义缓存
+│   └── memory.py            # 会话记忆
 ├── workflows/
 │   ├── base.py              # Workflow 基类
 │   ├── simple_qa.py
 │   ├── complex_flow.py
 │   └── gossip.py
-├── adapters/
-│   ├── base.py              # Adapter 接口
-│   ├── postgres_adapter.py
-│   ├── neo4j_adapter.py
-│   ├── free_api_adapter.py  # Travly 免费搜索
-│   └── mock_adapter.py      # 开发测试用
-├── subgraphs/
-│   ├── manager.py           # SubGraphManager
-│   └── schemas/             # 各子图 Schema 定义
-├── security/
-│   └── filters/             # 各种安全过滤器
-├── agents/
-│   ├── base.py              # Agent 基类（可替换不同 LLM）
-│   └── qwen_agent.py        # Qwen 实现
+├── workers/
+│   └── post_chat_worker.py  # 延迟缓存写入 / 摘要压缩
 ├── benchmark/
 │   ├── golden.json
-│   └── runner.py
-├── app.py                   # FastAPI 入口（极简）
-└── config.yaml              # 配置文件（环境切换）
+│   └── benchmark.py
+├── app.py                   # FastAPI 入口
+├── agent.py                 # chat 入口（缓存写入前出站脱敏）
+├── worker.py                # 后台 worker CLI
+└── config.yaml              # cache / queue / security 配置
+
+## Security（入站 / 出站）
+
+`POST /chat` 请求经 `core/middleware.py`：
+
+1. **入站**：脱敏 query/history 中的密钥、手机、邮箱等；拦截明显 SQL 注入模式
+2. **出站**：扫描 `answer` 与 `sql_generated`，命中则脱敏并写 audit 日志
+
+`agent.chat` 与 worker 缓存写入前调用同一套 `SecurityFilter.redact_chat_result`，避免缓存侧信道。
+
+配置见 `config.yaml` → `security`，可用环境变量覆盖（改后需重启或清 `get_security_config` 缓存）：
+
+| 环境变量 | 含义 |
+|----------|------|
+| `SECURITY_ENABLED` | 总开关 |
+| `SECURITY_SANITIZE_INPUT` | 入站脱敏 |
+| `SECURITY_SCAN_OUTPUT` | 出站扫描 |
+| `SECURITY_ENTROPY_SCAN_ENABLED` | L2 高熵 token 扫描 |
+| `SECURITY_ENTROPY_THRESHOLD` | 熵阈值（默认 4.2） |
+
+不引入 Presidio；球员/球队名不会被当作 PII 脱敏。
+
+`security.enabled=true` 时，结构化日志（`message` / `context` / `exception`）与 LangSmith trace 的 inputs/outputs 会经同一套 `sanitize_text` 规则脱敏后再落盘/上传。
 
 ## Session Memory（多轮对话）
 

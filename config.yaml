@@ -32,3 +32,17 @@ summary:
   token_threshold: 2500       # or when session token estimate exceeds this
   keep_recent_turns: 4        # messages kept verbatim after compress
   model_name: qwen-turbo
+
+# Security pipeline (inbound sanitize → agent → outbound scan)
+security:
+  enabled: true
+  sanitize_input: true
+  scan_output: true
+  scan_sql_generated: true
+  redact_output_on_issue: true
+  block_sql_injection_in_query: true
+  audit_log: true
+  redact_placeholder: "[REDACTED]"
+  entropy_scan_enabled: true
+  entropy_min_token_length: 24
+  entropy_threshold: 4.2

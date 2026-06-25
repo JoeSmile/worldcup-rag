@@ -8,6 +8,7 @@ from typing import Any, Callable, Dict, List, Optional
 
 from core.logger import get_logger, log_extra
 from core.memory import SessionMemory, get_session_memory
+from core.security import SecurityFilter
 
 logger = get_logger("workflows.base")
 
@@ -212,8 +213,8 @@ class MemoryAwareWorkflow(Workflow):
 
         persisted = self.memory.add_turn(
             session_id,
-            ctx.query,
-            answer,
+            SecurityFilter.sanitize_text(ctx.query),
+            SecurityFilter.sanitize_text(answer),
             workflow=self.name,
         )
         ctx.metadata["memory_persisted"] = persisted

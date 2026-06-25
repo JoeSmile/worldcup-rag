@@ -10,6 +10,7 @@ from typing import Any
 from core.logger import get_logger, log_extra
 from core.post_chat_queue import ack, PostChatEventType, read_group
 from core.query_cache import get_query_cache
+from core.security import SecurityFilter
 from core.summary_service import maybe_compress_session
 
 logger = get_logger("post_chat_worker")
@@ -33,6 +34,7 @@ def handle_message(fields: dict[str, str]) -> None:
         query = payload.get("query") or ""
         result = payload.get("result") or {}
         if query and isinstance(result, dict):
+            result = SecurityFilter.redact_chat_result(result)
             get_query_cache().set(query, result)
             logger.info("cache write completed", extra=log_extra(trace_id=trace_id))
         return

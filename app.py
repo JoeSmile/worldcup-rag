@@ -10,8 +10,11 @@ from core.chat_response import enrich_chat_result
 from core.chat_validation import validate_history_session_conflict
 from core.logger import bind_trace_id, get_logger, log_extra, new_trace_id
 from core.memory import get_session_memory
+from core.middleware import security_middleware
 from core.observability import init_observability
 from core.query_cache import get_query_cache
+from core.security import SecurityFilter
+from core.security_config import get_security_config
 from core.session_id import normalize_session_id, validate_session_id
 from etl.data.db import execute_query
 
@@ -57,6 +60,11 @@ class ChatResponse(BaseModel):
     session_id: Optional[str] = None
     memory_persisted: Optional[bool] = None
     post_chat_scheduled: Optional[Dict[str, bool]] = None
+
+
+@app.middleware("http")
+async def _security_middleware(request: Request, call_next):
+    return await security_middleware(request, call_next)
 
 
 @app.middleware("http")
@@ -113,6 +121,9 @@ async def chat_endpoint(request: ChatRequest, http_request: Request):
             ),
             session_id,
         )
+        sec_cfg = get_security_config().security
+        if sec_cfg.enabled and sec_cfg.scan_output:
+            http_request.state.security_redacted_at_agent = True
         logger.info(
             "chat completed",
             extra=log_extra(
@@ -131,7 +142,8 @@ async def chat_endpoint(request: ChatRequest, http_request: Request):
             "chat request failed",
             extra=log_extra(trace_id=trace_id, error=str(exc)),
         )
-        raise HTTPException(status_code=500, detail=str(exc)) from exc
+        detail = SecurityFilter.safe_error_detail(exc)
+        raise HTTPException(status_code=500, detail=detail) from exc
 
 
 @app.get("/health")
@@ -145,7 +157,10 @@ async def ready():
         result = await run_in_threadpool(execute_query, "SELECT 1")
     except Exception as exc:
         logger.exception("database readiness check failed", extra=log_extra())
-        raise HTTPException(status_code=503, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=503,
+            detail=SecurityFilter.safe_error_detail(exc),
+        ) from exc
     return {"status": "ready", "database": result[0][0] == 1}
 
 

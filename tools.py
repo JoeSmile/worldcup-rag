@@ -251,9 +251,11 @@ def _find_forbidden_table(sql: str) -> str | None:
 
 def execute_sql(sql: str):
     """Execute read-only SQL; return rows or a structured error for the agent."""
+    from core.security import SecurityFilter
+
     normalized = sql.strip()
-    if not normalized.upper().startswith("SELECT"):
-        return {"error": "Only SELECT queries are allowed", "sql": sql}
+    if SecurityFilter.is_unsafe_sql(normalized):
+        return {"error": "Only single SELECT queries are allowed", "sql": sql}
 
     forbidden = _find_forbidden_table(normalized)
     if forbidden:

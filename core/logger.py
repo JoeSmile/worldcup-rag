@@ -16,6 +16,25 @@ _CONFIGURED = False
 _LOGGER_NAMESPACE = "worldcup-rag"
 
 
+def _sanitize_log_message(message: str) -> str:
+    try:
+        from core.security import SecurityFilter
+
+        return SecurityFilter.sanitize_deep(message)
+    except Exception:
+        return message
+
+
+def _sanitize_log_context(context: dict[str, Any]) -> dict[str, Any]:
+    try:
+        from core.security import SecurityFilter
+
+        sanitized = SecurityFilter.sanitize_deep(context)
+        return sanitized if isinstance(sanitized, dict) else context
+    except Exception:
+        return context
+
+
 class JSONFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         log_obj: dict[str, Any] = {
@@ -23,18 +42,18 @@ class JSONFormatter(logging.Formatter):
             "level": record.levelname,
             "logger": record.name,
             "module": record.module,
-            "message": record.getMessage(),
+            "message": _sanitize_log_message(record.getMessage()),
             "trace_id": getattr(record, "trace_id", None) or trace_id_var.get(),
         }
 
         context = getattr(record, "log_context", None)
         if isinstance(context, dict) and context:
-            log_obj["context"] = context
+            log_obj["context"] = _sanitize_log_context(context)
 
         if record.exc_info and not record.exc_text:
             record.exc_text = self.formatException(record.exc_info)
         if record.exc_text:
-            log_obj["exception"] = record.exc_text
+            log_obj["exception"] = _sanitize_log_message(record.exc_text)
 
         return json.dumps(log_obj, ensure_ascii=False, default=str)
 
