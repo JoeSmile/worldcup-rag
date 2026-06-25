@@ -96,12 +96,35 @@ _PLAYER_STAT_HINTS = (
 
 _COMPARE_HINTS = ("对比", "谁更", "谁进球更多", " vs ", "VS")
 
+_CHAMPIONSHIP_COUNT_HINTS = ("几次", "哪些年", "哪些年份", "哪几届")
+
+
+def is_player_compare(query: str) -> bool:
+    """Two known players compared → simple_qa (player_stats or one sql_query)."""
+    text = query.strip()
+    if not any(kw in text for kw in COMPLEX_WITH_AND):
+        return False
+    if not any(kw in text for kw in ("谁", "更多", "更强", "进球", "哪个")):
+        return False
+
+    from tools import resolve_player_id
+
+    parts = re.split(r"[和与]|还是", text)
+    resolved = sum(1 for part in parts if resolve_player_id(part.strip()))
+    return resolved >= 2
+
 
 def prefers_simple_qa(query: str) -> bool:
     """Prefer simple_qa for single-entity stats misclassified by broad complex keywords."""
     text = query.strip()
     if not text:
         return False
+
+    if is_player_compare(text):
+        return True
+
+    if "一共" in text and any(kw in text for kw in _CHAMPIONSHIP_COUNT_HINTS):
+        return True
 
     if any(kw in text for kw in _COMPARE_HINTS):
         return False

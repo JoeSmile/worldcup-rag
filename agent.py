@@ -4,6 +4,8 @@ from typing import Dict, List, Optional
 
 from core.cache_config import get_cache_config
 from core.logger import get_logger, log_extra
+from core.post_chat_queue import enqueue_post_chat_tasks
+from core.queue_config import get_queue_config
 from core.query_cache import get_query_cache
 from workflows.registry import chat as workflow_chat
 
@@ -43,12 +45,31 @@ def chat(
     if session_id:
         result["session_id"] = session_id
 
-    if use_cache:
+    queue_cfg = get_queue_config()
+    defer_cache = queue_cfg.queue.enabled and queue_cfg.queue.defer_cache_write
+
+    if use_cache and not defer_cache:
         get_query_cache().set(query, result)
+    elif use_cache and defer_cache:
+        logger.info(
+            "query cache write deferred to worker",
+            extra=log_extra(trace_id=trace_id),
+        )
+
+    if use_cache:
         result["cache_hit"] = False
         result["cache_layer"] = None
     else:
         result.setdefault("cache_hit", False)
         result.setdefault("cache_layer", None)
+
+    if queue_cfg.queue.enabled:
+        result["post_chat_scheduled"] = enqueue_post_chat_tasks(
+            query,
+            result,
+            trace_id=trace_id,
+            session_id=session_id,
+            use_query_cache=use_cache,
+        )
 
     return result

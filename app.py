@@ -56,6 +56,7 @@ class ChatResponse(BaseModel):
     cache_layer: Optional[str] = None
     session_id: Optional[str] = None
     memory_persisted: Optional[bool] = None
+    post_chat_scheduled: Optional[Dict[str, bool]] = None
 
 
 @app.middleware("http")

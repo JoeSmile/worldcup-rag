@@ -16,3 +16,19 @@ cache:
   null:
     ttl: 600            # 10 minutes for cache penetration guard
     marker: "NULL_RESULT"
+
+# Post-chat async queue (Redis Stream) + session summary compression
+queue:
+  enabled: true
+  stream_key: worldcup-rag:post-chat
+  consumer_group: post-chat-workers
+  defer_cache_write: true   # move semantic/exact cache write off hot path
+  block_ms: 5000
+  batch_size: 10
+
+summary:
+  enabled: true
+  compress_after_turns: 6     # trigger after N user turns
+  token_threshold: 2500       # or when session token estimate exceeds this
+  keep_recent_turns: 4        # messages kept verbatim after compress
+  model_name: qwen-turbo

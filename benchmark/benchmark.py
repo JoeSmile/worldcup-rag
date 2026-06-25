@@ -54,6 +54,23 @@ def validate_sql(sql: Optional[str], case: Optional[Dict[str, Any]] = None) -> O
     return all(fragment.lower() in lowered for fragment in fragments)
 
 
+def match_expected_tool(case: Dict[str, Any], tools_used: List[str]) -> Optional[bool]:
+    """True if any expected tool (single or list) appears in tools_used."""
+    expected_any = case.get("expected_tools")
+    if expected_any:
+        return any(tool in tools_used for tool in expected_any)
+    expected = case.get("expected_tool")
+    if expected:
+        return expected in tools_used
+    return None
+
+
+def case_expects_sql(case: Dict[str, Any]) -> bool:
+    if case.get("expected_tool") == "sql_query":
+        return True
+    return "sql_query" in (case.get("expected_tools") or [])
+
+
 def score_answer(answer: str, case: Dict[str, Any]) -> bool:
     """答案评分：支持 OR、AND、以及多组「每组至少命中一个」."""
     any_keywords = case.get("expected_answer_contains", [])
@@ -131,6 +148,7 @@ def _base_result_fields(case: Dict[str, Any], case_index: int) -> Dict[str, Any]
         "question": case["question"],
         "category": case.get("category", "unknown"),
         "expected_tool": case.get("expected_tool"),
+        "expected_tools": case.get("expected_tools"),
         "expected_keywords": case.get("expected_answer_contains", []),
         "expected_keywords_all": case.get("expected_answer_contains_all", []),
         "expected_answer_groups": case.get("expected_answer_groups", []),
@@ -143,17 +161,17 @@ def _failed_result(
     latency: float,
     error: str,
 ) -> Dict[str, Any]:
-    expected_tool = case.get("expected_tool")
+    expects_tool = case.get("expected_tool") or case.get("expected_tools")
     return {
         **_base_result_fields(case, case_index),
         "actual_answer": "",
         "is_correct": False,
         "tool_used": None,
         "tools_used": [],
-        "tool_match": False if expected_tool else None,
+        "tool_match": False if expects_tool else None,
         "sql_generated": None,
         "sql_valid": None,
-        "sql_required_miss": expected_tool == "sql_query",
+        "sql_required_miss": case_expects_sql(case),
         "latency": round(latency, 2),
         "tokens_used": 0,
         "prompt_tokens": 0,
@@ -219,10 +237,9 @@ def evaluate_single_case(
         if tool_name and tool_name not in tools_used:
             tools_used.append(tool_name)
 
-        expected_tool = case.get("expected_tool")
-        tool_match = expected_tool in tools_used if expected_tool else None
+        tool_match = match_expected_tool(case, tools_used)
         sql_generated = result.get("sql_generated")
-        sql_expected = expected_tool == "sql_query"
+        sql_expected = case_expects_sql(case)
         sql_used = "sql_query" in tools_used
         usage = result.get("usage", {})
 
@@ -257,7 +274,11 @@ def _filter_cases(cases: List[Dict[str, Any]], category: Optional[str]) -> List[
 def _summarize_results(results: List[Dict[str, Any]]) -> Dict[str, Any]:
     total = len(results)
     correct = sum(1 for result in results if result.get("is_correct"))
-    tool_cases = [result for result in results if result.get("expected_tool")]
+    tool_cases = [
+        result
+        for result in results
+        if result.get("expected_tool") or result.get("expected_tools")
+    ]
     tool_correct = sum(1 for result in tool_cases if result.get("tool_match"))
     sql_cases = [result for result in results if result.get("sql_generated")]
     sql_valid_count = sum(1 for result in sql_cases if result.get("sql_valid") is True)

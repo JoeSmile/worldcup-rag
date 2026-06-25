@@ -235,6 +235,63 @@ class SessionMemory:
         except RedisError as exc:
             return {"available": False, "error": str(exc)}
 
+    def should_compress_summary(
+        self,
+        session_id: str,
+        *,
+        min_turns: int,
+        token_threshold: int,
+    ) -> bool:
+        if not self._redis or not session_id:
+            return False
+
+        stats = self.get_stats(session_id)
+        if not stats.get("available"):
+            return False
+
+        turns = int(stats.get("total_turns") or 0)
+        tokens = int(stats.get("total_tokens") or 0)
+        return turns >= min_turns or tokens >= token_threshold
+
+    def set_summary(self, session_id: str, summary: str) -> bool:
+        if not self._redis or not session_id or not summary.strip():
+            return False
+
+        keys = _keys(session_id)
+        try:
+            self._redis.set(keys["summary"], summary.strip())
+            self._redis.expire(keys["summary"], self.ttl_seconds)
+            return True
+        except RedisError as exc:
+            logger.warning(
+                "session summary write failed",
+                extra=log_extra(session_id=session_id, error=str(exc)),
+            )
+            return False
+
+    def archive_summarized_messages(self, session_id: str, *, keep_messages: int) -> int:
+        """Drop oldest messages after summary, keeping the latest keep_messages entries."""
+        if not self._redis or not session_id:
+            return 0
+
+        keys = _keys(session_id)
+        try:
+            length = self._redis.llen(keys["messages"])
+            if length <= keep_messages:
+                return 0
+
+            overflow = length - keep_messages
+            stale_ids = self._redis.lrange(keys["messages"], 0, overflow - 1)
+            self._delete_message_ids(session_id, stale_ids)
+            self._redis.ltrim(keys["messages"], overflow, -1)
+            return len(stale_ids)
+        except RedisError as exc:
+            logger.warning(
+                "session archive after summary failed",
+                extra=log_extra(session_id=session_id, error=str(exc)),
+            )
+            return 0
+
     def clear(self, session_id: str) -> int:
         if not self._redis or not session_id:
             return 0

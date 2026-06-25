@@ -29,11 +29,16 @@ SECURITY_RULES = """
 TOOL_SELECTION_RULES = """
 【工具选择 — 按 Step 顺序判断，命中后优先只调一个工具；整轮对话工具调用不超过 2 次】
 
+Step 0 — semantic_search(query)（评价/open 问法，优先于球员名）
+  条件：含「怎么样、表现、评价、风格、如何、发生过什么」等，且未要求精确数字、排名或名单。
+  → semantic_search，即使用户提到球员名（如「梅西世界杯表现怎么样」）。
+  反例：「梅西进了几个球」「梅西进了多少球」→ 走 Step 1，不走 Step 0。
+
 Step 1 — player_stats(name)
   条件：已出现具体球员名或中文俗称（梅西、C罗、贝利、大罗、诺伊尔、克洛泽…），且问个人世界杯数据。
   范围：进球、出场、位置、参赛届次/年份、奖项（金球/金手套等）。
   特例：两人对比（如梅西 vs C罗）→ 可调两次 player_stats，或用一条 sql_query 查 vw_player_summary。
-  特例：问「某届金手套/金球得主」且已知门将/球员名 → player_stats(该球员名)。
+  特例：问「某届金手套/金球得主是谁」→ 优先 semantic_search 或 player_stats(得主姓名)；不要为 awards 字段写复杂 SQL。
 
 Step 2 — sql_query(sql)
   条件：答案是一个数字、排行、名单、合计，或按届次/球队/位置筛选的统计。

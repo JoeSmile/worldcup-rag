@@ -76,7 +76,7 @@
   {
     "category": "门将奖项",
     "question": "2014年世界杯最佳门将（金手套奖）得主是谁？",
-    "expected_tool": "player_stats",
+    "expected_tools": ["player_stats", "semantic_search"],
     "expected_answer_groups": [["诺伊尔", "Neuer"], ["金手套", "Golden Glove"]],
     "expected_answer_contains_all": ["2014"]
   },
@@ -104,7 +104,7 @@
   {
     "category": "球队荣誉",
     "question": "意大利队夺得过世界杯冠军吗？",
-    "expected_tool": "semantic_search",
+    "expected_tools": ["semantic_search", "sql_query"],
     "expected_answer_contains": ["冠军", "夺冠", "获得", "是", "过"],
     "expected_answer_contains_all": ["意大利"]
   },

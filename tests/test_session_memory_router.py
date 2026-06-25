@@ -28,8 +28,15 @@ class RouterKeywordTests(unittest.TestCase):
     def test_route_gossip(self):
         self.assertEqual(route("有什么八卦"), "gossip")
 
-    def test_route_complex(self):
-        self.assertEqual(route("梅西和C罗谁进球更多"), "complex_flow")
+    def test_route_player_compare_to_simple_qa(self):
+        self.assertEqual(route("梅西和C罗谁进球更多"), "simple_qa")
+        self.assertEqual(route("梅西和C罗谁在世界杯的进球更多？"), "simple_qa")
+
+    def test_route_championship_count_to_simple_qa(self):
+        self.assertEqual(
+            route("意大利一共几次世界杯冠军？分别是哪些年份？"),
+            "simple_qa",
+        )
 
     def test_route_simple(self):
         self.assertEqual(route("梅西在世界杯进了几个球"), "simple_qa")
