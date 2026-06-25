@@ -1,14 +1,14 @@
 import hashlib
 import json
 import math
-import os
 import re
 import sys
 from functools import lru_cache
 from pathlib import Path
 
-from dotenv import load_dotenv
 from langchain_openai import OpenAIEmbeddings
+
+from core.config import settings
 
 DATA_DIR = Path(__file__).resolve().parent / "etl" / "data"
 if str(DATA_DIR) not in sys.path:
@@ -16,9 +16,7 @@ if str(DATA_DIR) not in sys.path:
 
 from db import execute_query  # noqa: E402
 
-load_dotenv()
-
-EMBEDDING_DIMENSIONS = int(os.getenv("EMBEDDING_DIMENSIONS", "1024"))
+EMBEDDING_DIMENSIONS = settings.embedding_dimensions
 DEFAULT_COLLECTION_PATTERN = "worldcup-%"
 PLAYER_ALIASES_PATH = DATA_DIR / "player_aliases.json"
 PLAYER_CAREERS_COLLECTION = "worldcup-player_careers"
@@ -131,23 +129,17 @@ def _mock_embedding(text: str, dimensions: int) -> list[float]:
 
 @lru_cache(maxsize=1)
 def _embedding_client() -> OpenAIEmbeddings | None:
-    api_key = os.getenv("OPENAI_API_KEY") or os.getenv("API_KEY")
+    api_key = settings.llm_api_key
     if not api_key:
         return None
 
-    base_url = (
-        os.getenv("EMBEDDING_BASE_URL")
-        or os.getenv("OPENAI_BASE_URL")
-        or os.getenv("API_BASE")
-    )
     kwargs: dict[str, object] = {
-        "model": os.getenv("EMBEDDING_MODEL", "text-embedding-v4"),
-        "dimensions": EMBEDDING_DIMENSIONS,
+        "model": settings.embedding_model,
+        "dimensions": settings.embedding_dimensions,
         "api_key": api_key,
         "check_embedding_ctx_length": False,
+        "base_url": settings.resolved_embedding_base_url,
     }
-    if base_url:
-        kwargs["base_url"] = base_url
     return OpenAIEmbeddings(**kwargs)
 
 

@@ -1,7 +1,6 @@
 import argparse
 import hashlib
 import json
-import os
 import subprocess
 import sys
 import time
@@ -12,11 +11,10 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import requests
-from dotenv import load_dotenv
 
-load_dotenv()
+from core.config import settings
 
-DEFAULT_API_BASE = os.getenv("BENCHMARK_API_BASE", "http://localhost:8000")
+DEFAULT_API_BASE = settings.benchmark_api_base
 DEFAULT_GOLDEN_PATH = "benchmark/golden.json"
 DEFAULT_RESULT_PATH = "benchmark/result.json"
 
@@ -96,8 +94,8 @@ def build_run_metadata(config: BenchmarkConfig) -> Dict[str, Any]:
         "golden_path": config.golden_path,
         "golden_sha256": _golden_digest(config.golden_path),
         "git_commit": _git_commit(),
-        "model": os.getenv("MODEL_NAME", "qwen3-max"),
-        "embedding_model": os.getenv("EMBEDDING_MODEL", "text-embedding-v4"),
+        "model": settings.model_name,
+        "embedding_model": settings.embedding_model,
         "workers": config.workers,
         "timeout_s": config.timeout,
         "retries": config.retries,

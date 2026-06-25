@@ -31,6 +31,9 @@ class ChatResponse(BaseModel):
     tools_used: Optional[List[str]] = None
     sql_generated: Optional[str] = None
     usage: Optional[Dict[str, int]] = None
+    workflow: Optional[str] = None
+    router_choice: Optional[str] = None
+    auto_routed: Optional[bool] = None
 
 @app.post("/chat", response_model=ChatResponse)
 async def chat_endpoint(request: ChatRequest):
@@ -59,4 +62,7 @@ async def ready():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+
+    from core.config import settings
+
+    uvicorn.run(app, host=settings.app_host, port=settings.app_port)
