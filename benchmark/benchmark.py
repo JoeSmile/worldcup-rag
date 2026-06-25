@@ -14,6 +14,9 @@ import requests
 
 from core.config import settings
 
+_http = requests.Session()
+_http.trust_env = False
+
 DEFAULT_API_BASE = settings.benchmark_api_base
 DEFAULT_GOLDEN_PATH = "benchmark/golden.json"
 DEFAULT_RESULT_PATH = "benchmark/result.json"
@@ -30,6 +33,8 @@ class BenchmarkConfig:
     min_accuracy: Optional[float] = None
     category: Optional[str] = None
     skip_ready_check: bool = False
+    skip_cache: bool = False
+    cache_verify: bool = False
 
 
 def validate_sql(sql: Optional[str], case: Optional[Dict[str, Any]] = None) -> Optional[bool]:
@@ -108,7 +113,7 @@ def check_api_ready(config: BenchmarkConfig) -> None:
 
     ready_url = f"{config.api_base.rstrip('/')}/ready"
     try:
-        response = requests.get(ready_url, timeout=10)
+        response = _http.get(ready_url, timeout=10)
         response.raise_for_status()
         payload = response.json()
     except requests.RequestException as exc:
@@ -165,9 +170,9 @@ def _request_chat(case: Dict[str, Any], config: BenchmarkConfig) -> requests.Res
 
     for attempt in range(config.retries + 1):
         try:
-            response = requests.post(
+            response = _http.post(
                 chat_url,
-                json={"query": case["question"]},
+                json={"query": case["question"], "skip_cache": config.skip_cache},
                 timeout=config.timeout,
             )
         except requests.RequestException as exc:
@@ -373,6 +378,69 @@ def run_benchmark(config: BenchmarkConfig) -> Dict[str, Any]:
     return report
 
 
+def run_cache_verify(config: BenchmarkConfig) -> None:
+    """Run golden twice: pass 1 warms cache, pass 2 should hit cache with same answers."""
+    base = config.api_base.rstrip("/")
+    try:
+        _http.post(f"{base}/cache/clear", timeout=10)
+    except requests.RequestException as exc:
+        print(f"警告: 无法清空缓存 ({exc})，继续评测")
+
+    print("=== Cache verify: pass 1 (warm / miss) ===")
+    warm_config = BenchmarkConfig(
+        api_base=config.api_base,
+        golden_path=config.golden_path,
+        result_path=config.result_path.replace(".json", ".cache-warm.json"),
+        timeout=config.timeout,
+        workers=config.workers,
+        retries=config.retries,
+        category=config.category,
+        skip_ready_check=config.skip_ready_check,
+        skip_cache=False,
+    )
+    warm_report = run_benchmark(warm_config)
+
+    print("\n=== Cache verify: pass 2 (cached) ===")
+    cached_config = BenchmarkConfig(
+        api_base=config.api_base,
+        golden_path=config.golden_path,
+        result_path=config.result_path.replace(".json", ".cache-hit.json"),
+        timeout=config.timeout,
+        workers=1,
+        retries=config.retries,
+        category=config.category,
+        skip_ready_check=True,
+        skip_cache=False,
+    )
+    cached_report = run_benchmark(cached_config)
+
+    warm_details = {r["case_index"]: r for r in warm_report["details"]}
+    cached_details = {r["case_index"]: r for r in cached_report["details"]}
+    mismatches = []
+    for idx, warm in warm_details.items():
+        cached = cached_details.get(idx)
+        if not cached:
+            continue
+        if warm.get("actual_answer") != cached.get("actual_answer"):
+            mismatches.append((idx, warm.get("question"), warm.get("actual_answer"), cached.get("actual_answer")))
+
+    try:
+        stats = _http.get(f"{base}/cache/stats", timeout=10).json()
+    except requests.RequestException:
+        stats = {}
+
+    print("\n=== Cache verify summary ===")
+    print(f"Pass 1 avg latency: {warm_report['summary']['average_latency']}s")
+    print(f"Pass 2 avg latency: {cached_report['summary']['average_latency']}s")
+    print(f"Cache stats: {stats}")
+    if mismatches:
+        print(f"\n答案不一致: {len(mismatches)} 条")
+        for idx, q, a1, a2 in mismatches[:5]:
+            print(f"  #{idx} {q[:40]} ... warm={a1[:60]} cached={a2[:60]}")
+        raise SystemExit(1)
+    print("\n两遍答案一致，缓存验收通过。")
+
+
 def parse_args() -> BenchmarkConfig:
     parser = argparse.ArgumentParser(description="World Cup RAG benchmark runner")
     parser.add_argument("--api-base", default=DEFAULT_API_BASE)
@@ -384,6 +452,12 @@ def parse_args() -> BenchmarkConfig:
     parser.add_argument("--min-accuracy", type=float, default=None)
     parser.add_argument("--category", default=None)
     parser.add_argument("--skip-ready-check", action="store_true")
+    parser.add_argument("--skip-cache", action="store_true", help="bypass query cache on /chat")
+    parser.add_argument(
+        "--cache-verify",
+        action="store_true",
+        help="run golden twice: warm cache then verify cached hits and answer parity",
+    )
     args = parser.parse_args()
 
     return BenchmarkConfig(
@@ -396,8 +470,14 @@ def parse_args() -> BenchmarkConfig:
         min_accuracy=args.min_accuracy,
         category=args.category,
         skip_ready_check=args.skip_ready_check,
+        skip_cache=args.skip_cache,
+        cache_verify=args.cache_verify,
     )
 
 
 if __name__ == "__main__":
-    run_benchmark(parse_args())
+    config = parse_args()
+    if config.cache_verify:
+        run_cache_verify(config)
+    else:
+        run_benchmark(config)

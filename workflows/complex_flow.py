@@ -11,7 +11,7 @@ import re
 from typing import Any
 
 from tools import execute_sql, semantic_search
-from workflows.base import StepWorkflow, WorkflowContext
+from workflows.base import MemoryAwareWorkflow, WorkflowContext
 
 _COMPLEX_HINTS = ("对比", "和", "谁更", "排名", "名单", "统计", "合计", "分别", "各届", "对比分析")
 _POSITION_MAP = {
@@ -178,7 +178,7 @@ def step_summarize(ctx: WorkflowContext) -> WorkflowContext:
     return ctx
 
 
-complex_flow_workflow = StepWorkflow(
+complex_flow_workflow = MemoryAwareWorkflow(
     name="complex_flow",
     steps=[
         step_analyze_query,

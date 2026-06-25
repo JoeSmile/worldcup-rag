@@ -1,7 +1,8 @@
 """Simple QA workflow: LangChain agent + World Cup tools."""
 
+from __future__ import annotations
+
 import json
-import logging
 from typing import Dict, List
 
 from langchain.agents import create_agent
@@ -9,6 +10,8 @@ from langchain.tools import tool
 from langchain_openai import ChatOpenAI
 
 from core.config import settings
+from core.logger import get_logger, log_extra
+from core.memory import SessionMemory
 from prompts import SYSTEM_PROMPT
 from tools import (
     execute_sql,
@@ -16,10 +19,9 @@ from tools import (
     search_players_by_name,
     semantic_search as search_worldcup_knowledge,
 )
-from workflows.base import StepWorkflow, Workflow, WorkflowContext
+from workflows.base import MemoryAwareWorkflow, Workflow, WorkflowContext
 
-settings.apply_langsmith_env()
-logger = logging.getLogger(__name__)
+logger = get_logger("workflows.simple_qa")
 
 
 def _to_json(data) -> str:
@@ -50,19 +52,19 @@ def sql_query(sql: str) -> str:
     return _to_json(execute_sql(sql))
 
 
-_llm = ChatOpenAI(
-    model=settings.model_name,
-    base_url=settings.llm_base_url,
-    api_key=settings.llm_api_key,
-    temperature=0,
-)
-
-_agent_executor = create_agent(
-    model=_llm,
-    tools=[search_players, semantic_search, player_stats, sql_query],
-    system_prompt=SYSTEM_PROMPT,
-    debug=settings.agent_debug,
-)
+def _build_agent():
+    llm = ChatOpenAI(
+        model=settings.model_name,
+        base_url=settings.llm_base_url,
+        api_key=settings.llm_api_key,
+        temperature=0,
+    )
+    return create_agent(
+        model=llm,
+        tools=[search_players, semantic_search, player_stats, sql_query],
+        system_prompt=SYSTEM_PROMPT,
+        debug=settings.agent_debug,
+    )
 
 
 def _extract_chat_metadata(messages) -> dict:
@@ -100,41 +102,63 @@ def _extract_chat_metadata(messages) -> dict:
     }
 
 
-def step_prepare_messages(ctx: WorkflowContext) -> WorkflowContext:
-    messages: List[Dict[str, str]] = []
-    if ctx.history:
-        for item in ctx.history[-5:]:
-            messages.append({"role": "user", "content": item["user"]})
-            messages.append({"role": "assistant", "content": item["assistant"]})
-    messages.append({"role": "user", "content": ctx.query})
-    ctx.messages = messages
-    return ctx
+class SimpleQAWorkflow(MemoryAwareWorkflow):
+    def __init__(self, memory: SessionMemory | None = None):
+        self._agent_executor: object | None = None
+        super().__init__(
+            name="simple_qa",
+            steps=[
+                self._prepare_messages,
+                self._invoke_agent,
+                self._finalize_response,
+            ],
+            memory=memory,
+        )
+
+    def _get_agent_executor(self):
+        if self._agent_executor is None:
+            self._agent_executor = _build_agent()
+        return self._agent_executor
+
+    def _prepare_messages(self, ctx: WorkflowContext) -> WorkflowContext:
+        messages: List[Dict[str, str]] = []
+
+        if ctx.history:
+            for item in ctx.history[-5:]:
+                messages.append({"role": "user", "content": item["user"]})
+                messages.append({"role": "assistant", "content": item["assistant"]})
+        else:
+            for msg in ctx.metadata.get("memory_recent") or []:
+                messages.append({"role": msg["role"], "content": msg["content"]})
+
+        messages.append({"role": "user", "content": ctx.query})
+        ctx.messages = messages
+        return ctx
+
+    def _invoke_agent(self, ctx: WorkflowContext) -> WorkflowContext:
+        trace_id = ctx.metadata.get("trace_id")
+        run_config = settings.langsmith_run_config("simple_qa", trace_id=trace_id)
+
+        logger.info(
+            "agent invoke",
+            extra=log_extra(
+                workflow="simple_qa",
+                trace_id=trace_id,
+                message_count=len(ctx.messages),
+            ),
+        )
+        result = self._get_agent_executor().invoke({"messages": ctx.messages}, config=run_config)
+        ctx.metadata["agent_messages"] = result["messages"]
+        return ctx
+
+    def _finalize_response(self, ctx: WorkflowContext) -> WorkflowContext:
+        agent_messages = ctx.metadata["agent_messages"]
+        metadata = _extract_chat_metadata(agent_messages)
+        ctx.set_answer(agent_messages[-1].content, **metadata)
+        return ctx
 
 
-def step_invoke_agent(ctx: WorkflowContext) -> WorkflowContext:
-    result = _agent_executor.invoke(
-        {"messages": ctx.messages},
-        config={"recursion_limit": settings.agent_recursion_limit},
-    )
-    ctx.metadata["agent_messages"] = result["messages"]
-    return ctx
-
-
-def step_finalize_response(ctx: WorkflowContext) -> WorkflowContext:
-    agent_messages = ctx.metadata["agent_messages"]
-    metadata = _extract_chat_metadata(agent_messages)
-    ctx.set_answer(agent_messages[-1].content, **metadata)
-    return ctx
-
-
-simple_qa_workflow = StepWorkflow(
-    name="simple_qa",
-    steps=[
-        step_prepare_messages,
-        step_invoke_agent,
-        step_finalize_response,
-    ],
-)
+simple_qa_workflow = SimpleQAWorkflow()
 
 
 def chat(query: str, history: List[Dict] = None) -> dict:

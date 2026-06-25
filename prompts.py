@@ -62,9 +62,15 @@ A. 分析视图（排行、筛选、聚合优先）
   示例（巴西球员）：
   SELECT display_name, goals FROM vw_player_summary
   WHERE team_codes @> ARRAY['BRA'] ORDER BY goals DESC LIMIT 5
+  示例（中国女足世界杯射手王）：
+  SELECT display_name, goals FROM vw_player_summary
+  WHERE competition = 'Women''s' AND team_codes @> ARRAY['CHN']
+  ORDER BY goals DESC LIMIT 5
 
 - vw_match_summary：match_id, tournament_id, home_team, away_team, stage_name, score, goals, match_date
-  示例（决赛，注意 stage 用小写 final）：
+  示例（2022 决赛总进球数，优先 match_id）：
+  SELECT goals FROM vw_match_summary WHERE match_id = 'M-2022-64'
+  示例（按届次筛决赛，stage 用小写 final）：
   SELECT match_id, score, goals FROM vw_match_summary
   WHERE tournament_id = '2022' AND stage_name ILIKE '%final%'
 

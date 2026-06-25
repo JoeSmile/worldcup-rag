@@ -9,6 +9,9 @@ from pathlib import Path
 from langchain_openai import OpenAIEmbeddings
 
 from core.config import settings
+from core.logger import get_logger, log_extra
+
+logger = get_logger("tools")
 
 DATA_DIR = Path(__file__).resolve().parent / "etl" / "data"
 if str(DATA_DIR) not in sys.path:
@@ -254,6 +257,10 @@ def execute_sql(sql: str):
 
     forbidden = _find_forbidden_table(normalized)
     if forbidden:
+        logger.warning(
+            "sql rejected forbidden table",
+            extra=log_extra(table=forbidden, sql_preview=normalized[:120]),
+        )
         return {
             "error": (
                 f"Table '{forbidden}' does not exist. "
@@ -268,6 +275,10 @@ def execute_sql(sql: str):
         return {"rows": rows, "row_count": len(rows)}
     except Exception as exc:
         message = str(exc).strip().split("\n")[0]
+        logger.warning(
+            "sql execution failed",
+            extra=log_extra(error=message, sql_preview=normalized[:120]),
+        )
         return {"error": message, "sql": sql}
 
 

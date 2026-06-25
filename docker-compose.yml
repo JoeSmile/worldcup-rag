@@ -19,7 +19,32 @@ services:
       retries: 5
       start_period: 10s
 
+  redis:
+    image: redis/redis-stack:${REDIS_STACK_VERSION:-7.4.0-v1}
+    container_name: worldcup-rag-redis-stack
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+      - "${REDIS_INSIGHT_PORT:-8001}:8001"
+    environment:
+      REDIS_ARGS: ${REDIS_ARGS:---appendonly yes}
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: >
+        sh -c 'if [ -n "$$REDIS_PASSWORD" ]; then
+          redis-cli -a "$$REDIS_PASSWORD" ping;
+        else
+          redis-cli ping;
+        fi'
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
 volumes:
   postgres-data:
     name: worldcup_rag_postgres_data
     external: true
+  redis-data:
+    name: worldcup_rag_redis_data

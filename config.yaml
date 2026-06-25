@@ -1,0 +1,18 @@
+# Application cache tuning (override via env CACHE_* where supported)
+cache:
+  enabled: true
+  l1:
+    maxsize: 100        # production: 10000
+    ttl: 60             # seconds; production: 300
+  l2:
+    ttl: 86400          # 1 day; production: 604800 (7 days)
+  semantic:
+    enabled: true
+    threshold: 0.88     # COSINE similarity; try 0.88~0.95 for sports QA
+    ttl: 86400
+    knn: 3
+    max_entries: 1000000
+    vector_algorithm: HNSW  # HNSW | FLAT
+  null:
+    ttl: 600            # 10 minutes for cache penetration guard
+    marker: "NULL_RESULT"

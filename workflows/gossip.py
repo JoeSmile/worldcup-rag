@@ -10,7 +10,7 @@ import re
 from typing import Any
 
 from tools import get_player_stats, resolve_player_id, semantic_search
-from workflows.base import StepWorkflow, WorkflowContext
+from workflows.base import MemoryAwareWorkflow, WorkflowContext
 
 _GOSSIP_HINTS = (
     "八卦",
@@ -39,9 +39,9 @@ _FUN_HINTS = ("有趣", "好玩", "冷知识", "你知道吗", "发生过什么"
 
 def _classify_gossip(query: str) -> dict[str, Any]:
     topics: list[str] = []
-    if any(kw in query for kw in _GOSSIP_HINTS):
+    if any(kw in query for kw in GOSSIP_KEYWORDS):
         topics.append("gossip")
-    if any(kw in query for kw in _FUN_HINTS):
+    if any(kw in query for kw in FUN_KEYWORDS):
         topics.append("fun_fact")
     if not topics:
         topics.append("casual_football")
@@ -164,7 +164,7 @@ def step_compose_reply(ctx: WorkflowContext) -> WorkflowContext:
     return ctx
 
 
-gossip_workflow = StepWorkflow(
+gossip_workflow = MemoryAwareWorkflow(
     name="gossip",
     steps=[
         step_classify_topic,

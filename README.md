@@ -47,12 +47,12 @@ football-rag/
 ├── core/
 │   ├── registry.py          # ToolRegistry
 │   ├── security.py          # SecurityPipeline
-│   └── orchestrator.py      # WorkflowOrchestrator
+│   
 ├── workflows/
 │   ├── base.py              # Workflow 基类
 │   ├── simple_qa.py
-│   ├── graph_rag.py
-│   └── multi_hop.py
+│   ├── complex_flow.py
+│   └── gossip.py
 ├── adapters/
 │   ├── base.py              # Adapter 接口
 │   ├── postgres_adapter.py
@@ -72,3 +72,63 @@ football-rag/
 │   └── runner.py
 ├── app.py                   # FastAPI 入口（极简）
 └── config.yaml              # 配置文件（环境切换）
+
+## Session Memory（多轮对话）
+
+服务端会话记忆存 Redis（`chat:session:{session_id}:*`），与 query cache（`exact:` / semantic）分离。
+
+### 客户端用法
+
+**推荐：只传 `session_id`（服务端 memory）**
+
+```json
+POST /chat
+{
+  "query": "梅西在世界杯进了几个球？",
+  "session_id": "user-abc-001"
+}
+```
+
+**Benchmark / 单测：只传 `history`（客户端自带上下文）**
+
+```json
+{
+  "query": "...",
+  "history": [{"user": "...", "assistant": "..."}]
+}
+```
+
+不要同时传 `session_id` 和 `history`（会返回 400）。
+
+`session_id` 格式：`^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$`
+
+### 响应字段
+
+| 字段 | 含义 |
+|------|------|
+| `memory_persisted: null` | 未传 session |
+| `memory_persisted: false` | 有 session 但未写入（Redis 不可用 / 失败 / workflow 错误） |
+| `memory_persisted: true` | 本轮 user+assistant 已原子写入 Redis |
+
+有 `session_id` 时会跳过全局 query cache。
+
+### Router 与 Memory
+
+- 规则 router 默认开启；`ROUTER_LLM_ENABLED=true` 时，对指代/续问类短句用小模型补路由
+- 所有 workflow 共享同一 Redis memory，按 `session_id` 隔离
+- 目前 **仅 `simple_qa` 将 memory 注入 Agent prompt**；`complex_flow` / `gossip` 会写入 memory 供后续轮次与 router 使用
+
+### Session 运维 API
+
+```bash
+GET    /session/{session_id}/stats
+DELETE /session/{session_id}
+```
+
+### 运行测试
+
+```bash
+PYTHONPATH=. python -m unittest discover -s tests -p 'test_*.py' -v
+```
+
+CI：`.github/workflows/tests.yml`
