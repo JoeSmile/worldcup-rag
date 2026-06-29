@@ -11,31 +11,7 @@ from typing import Any
 
 from tools import get_player_stats, resolve_player_id, semantic_search
 from workflows.base import MemoryAwareWorkflow, WorkflowContext
-
-_GOSSIP_HINTS = (
-    "八卦",
-    "绯闻",
-    "趣闻",
-    "轶事",
-    "轶闻",
-    "花边",
-    "恋情",
-    "传闻",
-    "爆料",
-    "内幕",
-    "故事",
-    "花絮",
-    "瓜",
-    "八卦新闻",
-    "场外",
-    "私生活",
-    "女朋友",
-    "离婚",
-    "桃色",
-)
-
-_FUN_HINTS = ("有趣", "好玩", "冷知识", "你知道吗", "发生过什么", "难忘", "经典瞬间")
-
+from workflows.route_keywords import FUN_KEYWORDS, GOSSIP_KEYWORDS
 
 def _classify_gossip(query: str) -> dict[str, Any]:
     topics: list[str] = []

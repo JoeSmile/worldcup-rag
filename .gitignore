@@ -54,3 +54,4 @@ dist/
 
 # Benchmark outputs
 benchmark/result.json
+benchmark/result.*.json

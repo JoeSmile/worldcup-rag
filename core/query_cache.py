@@ -12,6 +12,7 @@ from redis.exceptions import RedisError
 
 from core.cache_config import get_cache_config
 from core.logger import get_logger, log_extra
+from core.metrics import record_cache_lookup
 from core.redis_client import get_redis_binary, get_redis_text
 from core.semantic_cache import get_semantic_cache
 from core.semantic_cache import SEMANTIC_PREFIX
@@ -74,21 +75,25 @@ class QueryCache:
 
         if digest in self.l1:
             self.stats["l1_hit"] += 1
+            record_cache_lookup("l1")
             return self._from_payload(self.l1[digest], marker), "l1"
 
         l2_payload = self._get_l2_exact(digest)
         if l2_payload is not None:
             self.stats["l2_hit"] += 1
             self._l1_put(digest, l2_payload)
+            record_cache_lookup("l2")
             return self._from_payload(l2_payload, marker), "l2"
 
         semantic_payload = self._get_semantic(normalized)
         if semantic_payload is not None:
             self.stats["semantic_hit"] += 1
             self._l1_put(digest, semantic_payload)
+            record_cache_lookup("semantic")
             return self._from_payload(semantic_payload, marker), "semantic"
 
         self.stats["miss"] += 1
+        record_cache_lookup("miss")
         return None, None
 
     def _get_l2_exact(self, digest: str) -> dict[str, Any] | None:

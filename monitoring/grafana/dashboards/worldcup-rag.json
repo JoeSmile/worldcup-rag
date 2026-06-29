@@ -1,0 +1,91 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "panels": [
+    {
+      "title": "Chat QPS",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum(rate(worldcup_chat_requests_total[5m])) by (workflow)",
+          "legendFormat": "{{workflow}}"
+        }
+      ]
+    },
+    {
+      "title": "Chat P95 latency (s)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(worldcup_chat_duration_seconds_bucket[5m])) by (le, workflow))",
+          "legendFormat": "{{workflow}}"
+        }
+      ]
+    },
+    {
+      "title": "Cache lookup rate by layer",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "expr": "sum(rate(worldcup_cache_lookup_total[5m])) by (layer)",
+          "legendFormat": "{{layer}}"
+        }
+      ]
+    },
+    {
+      "title": "Cache hit ratio",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "targets": [
+        {
+          "expr": "sum(rate(worldcup_cache_lookup_total{layer!=\"miss\"}[5m])) / clamp_min(sum(rate(worldcup_cache_lookup_total[5m])), 1e-9)",
+          "legendFormat": "hit_ratio"
+        }
+      ]
+    },
+    {
+      "title": "HTTP 5xx rate",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+      "targets": [
+        {
+          "expr": "sum(rate(http_requests_total{status=~\"5..\"}[5m]))",
+          "legendFormat": "5xx"
+        }
+      ]
+    },
+    {
+      "title": "HTTP P95 latency (s)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p95"
+        }
+      ]
+    },
+    {
+      "title": "LLM tokens / min",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 24 },
+      "targets": [
+        {
+          "expr": "sum(rate(worldcup_llm_tokens_total[5m])) by (type)",
+          "legendFormat": "{{type}}"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["worldcup-rag"],
+  "time": { "from": "now-1h", "to": "now" },
+  "title": "World Cup RAG",
+  "uid": "worldcup-rag",
+  "version": 2
+}

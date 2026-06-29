@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: worldcup-rag-env
+  namespace: worldcup-rag
+data:
+  PG_HOST: worldcup-postgres
+  PG_PORT: "5432"
+  PG_DATABASE: memoryos
+  PG_USER: memoryos
+  REDIS_HOST: worldcup-redis
+  REDIS_PORT: "6379"
+  REDIS_DB: "0"
+  REDIS_VECTOR_INDEX: worldcup:vectors
+  MODEL_NAME: qwen3-max
+  API_BASE: https://dashscope.aliyuncs.com/compatible-mode/v1
+  EMBEDDING_MODEL: text-embedding-v4
+  EMBEDDING_DIMENSIONS: "1024"
+  DEFAULT_WORKFLOW: simple_qa
+  WORKFLOW_AUTO_ROUTE: "true"
+  LOG_LEVEL: INFO
+  APP_HOST: "0.0.0.0"
+  APP_PORT: "8000"

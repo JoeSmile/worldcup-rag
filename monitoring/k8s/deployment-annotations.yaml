@@ -1,0 +1,39 @@
+# Example Kubernetes scrape annotations for the API Deployment/Pod template.
+#
+# Compatible with common Prometheus operator annotation-based discovery.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worldcup-rag-api
+spec:
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "8000"
+    spec:
+      containers:
+        - name: api
+          image: worldcup-rag:latest
+          ports:
+            - name: http
+              containerPort: 8000
+          env:
+            # Disable public /metrics in production; scrape with bearer token.
+            - name: METRICS_PUBLIC_ENDPOINT
+              value: "false"
+            - name: METRICS_AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: worldcup-rag-metrics
+                  key: token
+            # Required when running uvicorn with --workers > 1
+            - name: PROMETHEUS_MULTIPROC_DIR
+              value: /tmp/prometheus_multiproc
+          volumeMounts:
+            - name: prometheus-multiproc
+              mountPath: /tmp/prometheus_multiproc
+      volumes:
+        - name: prometheus-multiproc
+          emptyDir: {}

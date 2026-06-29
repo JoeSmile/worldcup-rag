@@ -1,0 +1,19 @@
+# Prometheus Operator ServiceMonitor (adjust namespace/labels to your cluster).
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: worldcup-rag-api
+  labels:
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: worldcup-rag-api
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+      # When METRICS_PUBLIC_ENDPOINT=false, configure bearer token auth:
+      # bearerTokenSecret:
+      #   name: worldcup-rag-metrics
+      #   key: token

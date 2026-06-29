@@ -1,3 +1,4 @@
+import time
 from typing import Dict, List, Optional
 
 from fastapi import FastAPI, HTTPException, Request
@@ -10,6 +11,13 @@ from core.chat_response import enrich_chat_result
 from core.chat_validation import validate_history_session_conflict
 from core.logger import bind_trace_id, get_logger, log_extra, new_trace_id
 from core.memory import get_session_memory
+from core.metrics import (
+    authorize_metrics_request,
+    metrics_enabled,
+    metrics_middleware,
+    metrics_response,
+    record_chat_result,
+)
 from core.middleware import security_middleware
 from core.observability import init_observability
 from core.query_cache import get_query_cache
@@ -63,6 +71,11 @@ class ChatResponse(BaseModel):
 
 
 @app.middleware("http")
+async def _metrics_middleware(request: Request, call_next):
+    return await metrics_middleware(request, call_next)
+
+
+@app.middleware("http")
 async def _security_middleware(request: Request, call_next):
     return await security_middleware(request, call_next)
 
@@ -108,6 +121,7 @@ async def chat_endpoint(request: ChatRequest, http_request: Request):
         ),
     )
 
+    started = time.perf_counter()
     try:
         result = enrich_chat_result(
             await run_in_threadpool(
@@ -118,9 +132,11 @@ async def chat_endpoint(request: ChatRequest, http_request: Request):
                 trace_id,
                 request.skip_cache,
                 session_id,
+                record_metrics=False,
             ),
             session_id,
         )
+        record_chat_result(result, time.perf_counter() - started)
         sec_cfg = get_security_config().security
         if sec_cfg.enabled and sec_cfg.scan_output:
             http_request.state.security_redacted_at_agent = True
@@ -138,12 +154,22 @@ async def chat_endpoint(request: ChatRequest, http_request: Request):
         )
         return result
     except Exception as exc:
+        record_chat_result(None, time.perf_counter() - started, status="error")
         logger.exception(
             "chat request failed",
             extra=log_extra(trace_id=trace_id, error=str(exc)),
         )
         detail = SecurityFilter.safe_error_detail(exc)
         raise HTTPException(status_code=500, detail=detail) from exc
+
+
+@app.get("/metrics")
+async def metrics(http_request: Request):
+    if not metrics_enabled():
+        raise HTTPException(status_code=404, detail="metrics disabled")
+    if not authorize_metrics_request(http_request):
+        raise HTTPException(status_code=403, detail="metrics endpoint requires authorization")
+    return metrics_response()
 
 
 @app.get("/health")

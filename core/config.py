@@ -56,6 +56,11 @@ class Settings(BaseSettings):
     # --- Router (small LLM for ambiguous session turns) ---
     router_llm_enabled: bool = Field(default=False, validation_alias="ROUTER_LLM_ENABLED")
     router_model_name: str = Field(default="qwen-turbo", validation_alias="ROUTER_MODEL_NAME")
+
+    # --- Complex flow (SQL replan / summarize; defaults to router model for cost) ---
+    complex_flow_model_name: str | None = Field(
+        default=None, validation_alias="COMPLEX_FLOW_MODEL_NAME"
+    )
     router_confidence_threshold: float = Field(
         default=0.7, validation_alias="ROUTER_CONFIDENCE_THRESHOLD"
     )
@@ -100,6 +105,10 @@ class Settings(BaseSettings):
     @property
     def llm_base_url(self) -> str:
         return self.api_base or self.openai_base_url or "https://dashscope.aliyuncs.com/compatible-mode/v1"
+
+    @property
+    def resolved_complex_flow_model_name(self) -> str:
+        return self.complex_flow_model_name or self.router_model_name
 
     @property
     def resolved_embedding_base_url(self) -> str:

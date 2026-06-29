@@ -113,6 +113,8 @@ class Workflow(ABC):
             "workflow": self.name,
             "error": None,
         }
+        if ctx.metadata.get("model") is not None:
+            response["model"] = ctx.metadata.get("model")
         if session_id:
             response["session_id"] = session_id
             response["memory_persisted"] = ctx.metadata.get("memory_persisted", False)

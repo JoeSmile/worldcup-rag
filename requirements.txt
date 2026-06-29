@@ -11,10 +11,5 @@ pydantic-settings==2.13.0
 PyYAML==6.0.2
 redis==5.2.1
 cachetools==5.5.2
-sentence-transformers==4.1.0
-transformers==4.57.6
-torch==2.2.2
-numpy==1.26.4
-scipy==1.17.1
-huggingface-hub==0.36.2
 sqlparse==0.5.3
+prometheus-client==0.21.1

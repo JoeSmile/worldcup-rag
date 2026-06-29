@@ -46,3 +46,9 @@ security:
   entropy_scan_enabled: true
   entropy_min_token_length: 24
   entropy_threshold: 4.2
+
+# Prometheus metrics (/metrics)
+metrics:
+  enabled: true
+  public_endpoint: true   # local dev; production/K8s: false + auth_token
+  auth_token: null
