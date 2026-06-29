@@ -1,0 +1,83 @@
+{
+  "dataset_name": "worldcup-rag-studio",
+  "description": "LangSmith Evaluate dataset. Every example uses inputs.query + inputs.graph (maps to input.query / input.graph in evaluator UI).",
+  "evaluator_paths_langsmith_ui": {
+    "userQuestion": "input.query",
+    "graph": "input.graph",
+    "referenceOutput": "referenceOutput.reference",
+    "assistantAnswer": "output.answer",
+    "assistantAnswer_note": "Step graphs (gossip/complex_flow) also set state.answer after compose",
+    "notes": [
+      "Example.metadata is NOT in the path picker — put graph in inputs.graph",
+      "Run a sample experiment first so output.* paths appear",
+      "Target: scripts/langsmith_eval_target.run_agent OR langgraph graph worldcup_chat"
+    ]
+  },
+  "examples": [
+    {
+      "inputs": {
+        "query": "梅西在世界杯一共进了几个球？",
+        "graph": "simple_qa"
+      },
+      "outputs": {
+        "reference": "梅西在世界杯共打进13球（5届世界杯，26次出场）。"
+      },
+      "metadata": {
+        "category": "球员生涯统计",
+        "expected_tool": "player_stats"
+      }
+    },
+    {
+      "inputs": {
+        "query": "2022年世界杯决赛一共有多少个进球？",
+        "graph": "simple_qa"
+      },
+      "outputs": {
+        "reference": "2022年世界杯决赛共打进6球（阿根廷对法国）。"
+      },
+      "metadata": {
+        "category": "比赛统计",
+        "expected_tool": "sql_query"
+      }
+    },
+    {
+      "inputs": {
+        "query": "意大利一共几次世界杯冠军？分别是哪些年份？",
+        "graph": "complex_flow"
+      },
+      "outputs": {
+        "reference": "意大利共4次世界杯冠军：1934、1938、1982、2006。"
+      },
+      "metadata": {
+        "category": "球队荣誉",
+        "expected_tool": "sql_query"
+      }
+    },
+    {
+      "inputs": {
+        "query": "有什么世界杯八卦或场外趣闻可以聊聊？",
+        "graph": "gossip"
+      },
+      "outputs": {
+        "reference": "基于知识库检索的公开世界杯花絮/轶事片段；不编造未经证实的绯闻。"
+      },
+      "metadata": {
+        "category": "八卦趣闻",
+        "expected_tool": "semantic_search"
+      }
+    },
+    {
+      "inputs": {
+        "query": "你谁啊",
+        "graph": "gossip"
+      },
+      "outputs": {
+        "reference": "我是世界杯足球问答助手，可回答赛果、球员数据与轻松闲聊类问题。"
+      },
+      "metadata": {
+        "category": "身份寒暄",
+        "gossip_fast_path": "identity"
+      }
+    }
+  ]
+}

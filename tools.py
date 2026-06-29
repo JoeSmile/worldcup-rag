@@ -10,6 +10,7 @@ from langchain_openai import OpenAIEmbeddings
 
 from core.config import settings
 from core.logger import get_logger, log_extra
+from core.retrieval_config import get_retrieval_config
 
 logger = get_logger("tools")
 
@@ -162,13 +163,14 @@ def semantic_search(
     """Search World Cup fact-card chunks from documents/document_chunks."""
     safe_limit = max(1, min(int(limit), 20))
     query_vec = embed_query(query)
+    min_similarity = get_retrieval_config().min_similarity
 
     if collection:
         where_clause = "d.collection = %s"
-        params = (query_vec, collection, query_vec, safe_limit)
+        params = (query_vec, collection, query_vec, min_similarity, query_vec, safe_limit)
     else:
         where_clause = "d.collection LIKE %s"
-        params = (query_vec, DEFAULT_COLLECTION_PATTERN, query_vec, safe_limit)
+        params = (query_vec, DEFAULT_COLLECTION_PATTERN, query_vec, min_similarity, query_vec, safe_limit)
 
     sql = f"""
         SELECT
@@ -180,6 +182,7 @@ def semantic_search(
         FROM document_chunks dc
         JOIN documents d ON d.id = dc.document_id
         WHERE {where_clause}
+          AND (1 - (dc.embedding <=> %s::vector)) > %s
         ORDER BY dc.embedding <=> %s::vector
         LIMIT %s
     """

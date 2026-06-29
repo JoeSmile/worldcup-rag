@@ -1,0 +1,192 @@
+{
+  "dataset_name": "worldcup-rag-simple-qa",
+  "description": "simple_qa only. inputs.query; Target: simple_qa graph.",
+  "examples": [
+    {
+      "inputs": {
+        "query": "梅西在世界杯一共进了几个球？"
+      },
+      "outputs": {
+        "reference": "应包含「梅西」；可含：13；可含：十三；期望工具：player_stats"
+      },
+      "metadata": {
+        "category": "球员生涯统计",
+        "expected_tool": "player_stats"
+      }
+    },
+    {
+      "inputs": {
+        "query": "梅西在世界杯踢什么位置？"
+      },
+      "outputs": {
+        "reference": "应包含「梅西」；可含：FW；可含：前锋；可含：锋；期望工具：player_stats"
+      },
+      "metadata": {
+        "category": "球员位置",
+        "expected_tool": "player_stats"
+      }
+    },
+    {
+      "inputs": {
+        "query": "2022年世界杯决赛一共有多少个进球？"
+      },
+      "outputs": {
+        "reference": "可含：6；可含：六；期望工具：sql_query"
+      },
+      "metadata": {
+        "category": "比赛统计",
+        "expected_tool": "sql_query"
+      }
+    },
+    {
+      "inputs": {
+        "query": "梅西和C罗谁在世界杯的进球更多？"
+      },
+      "outputs": {
+        "reference": "应包含「梅西」；可含：13；可含：8；可含：更多；期望工具：player_stats"
+      },
+      "metadata": {
+        "category": "球员对比",
+        "expected_tool": "player_stats"
+      }
+    },
+    {
+      "inputs": {
+        "query": "梅西世界杯表现怎么样？"
+      },
+      "outputs": {
+        "reference": "应包含「梅西」；应包含「世界杯」；期望工具：semantic_search"
+      },
+      "metadata": {
+        "category": "语义检索",
+        "expected_tool": "semantic_search"
+      }
+    },
+    {
+      "inputs": {
+        "query": "球王贝利在世界杯一共进了几个球？"
+      },
+      "outputs": {
+        "reference": "应包含「贝利」；可含：12；可含：十二；可含：Pelé；期望工具：player_stats"
+      },
+      "metadata": {
+        "category": "传奇球员",
+        "expected_tool": "player_stats"
+      }
+    },
+    {
+      "inputs": {
+        "query": "贝利参加过几届世界杯？分别是哪些年份？"
+      },
+      "outputs": {
+        "reference": "应包含「贝利」；可含：4；可含：四；可含：1958；可含：1970；期望工具：player_stats"
+      },
+      "metadata": {
+        "category": "传奇球员",
+        "expected_tool": "player_stats"
+      }
+    },
+    {
+      "inputs": {
+        "query": "大罗（巴西罗纳尔多）世界杯生涯总共进了几个球？"
+      },
+      "outputs": {
+        "reference": "应包含其一：15 / 十五；应包含其一：罗纳尔多 / Ronaldo；期望工具：player_stats"
+      },
+      "metadata": {
+        "category": "传奇球员",
+        "expected_tool": "player_stats"
+      }
+    },
+    {
+      "inputs": {
+        "query": "1998年世界杯大罗进了几个球？"
+      },
+      "outputs": {
+        "reference": "应包含「1998」；应包含其一：4 / 四；应包含其一：罗纳尔多 / Ronaldo；期望工具：player_stats"
+      },
+      "metadata": {
+        "category": "单届表现",
+        "expected_tool": "player_stats"
+      }
+    },
+    {
+      "inputs": {
+        "query": "1998年世界杯大罗获得了什么个人奖项？"
+      },
+      "outputs": {
+        "reference": "应包含其一：金球 / Golden Ball；应包含其一：1998；期望工具：player_stats"
+      },
+      "metadata": {
+        "category": "单届表现",
+        "expected_tool": "player_stats"
+      }
+    },
+    {
+      "inputs": {
+        "query": "2014年世界杯最佳门将（金手套奖）得主是谁？"
+      },
+      "outputs": {
+        "reference": "应包含「2014」；应包含其一：诺伊尔 / Neuer；应包含其一：金手套 / Golden Glove；期望工具：player_stats"
+      },
+      "metadata": {
+        "category": "门将奖项",
+        "expected_tools": [
+          "player_stats",
+          "semantic_search"
+        ]
+      }
+    },
+    {
+      "inputs": {
+        "query": "意大利队夺得过世界杯冠军吗？"
+      },
+      "outputs": {
+        "reference": "应包含「意大利」；可含：冠军；可含：夺冠；可含：获得；可含：是；可含：过；期望工具：semantic_search"
+      },
+      "metadata": {
+        "category": "球队荣誉",
+        "expected_tools": [
+          "semantic_search",
+          "sql_query"
+        ]
+      }
+    },
+    {
+      "inputs": {
+        "query": "意大利一共几次世界杯冠军？分别是哪些年份？"
+      },
+      "outputs": {
+        "reference": "应包含「意大利」；应包含其一：4 / 四；可含：1934；可含：1938；可含：1982；可含：2006；期望工具：sql_query"
+      },
+      "metadata": {
+        "category": "球队荣誉",
+        "expected_tool": "sql_query"
+      }
+    },
+    {
+      "inputs": {
+        "query": "中国男足参加过世界杯吗？是哪一届？"
+      },
+      "outputs": {
+        "reference": "应包含「2002」；可含：中国；可含：男足；可含：CHN；期望工具：semantic_search"
+      },
+      "metadata": {
+        "category": "中国队",
+        "expected_tool": "semantic_search"
+      }
+    },
+    {
+      "inputs": {
+        "query": "中国女足在世界杯进球最多的球员是谁？进了几个球？"
+      },
+      "outputs": {
+        "reference": "应包含其一：孙雯 / Wen Sun；应包含其一：11 / 十一；期望工具：sql_query"
+      },
+      "metadata": {
+        "category": "中国队",
+        "expected_tool": "sql_query"
+      }
+    }
+  ]
+}

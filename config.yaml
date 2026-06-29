@@ -1,3 +1,7 @@
+# Vector retrieval (pgvector semantic_search in tools.py)
+retrieval:
+  min_similarity: 0.7   # cosine similarity floor; rows at or below are excluded
+
 # Application cache tuning (override via env CACHE_* where supported)
 cache:
   enabled: true

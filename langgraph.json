@@ -1,0 +1,19 @@
+{
+  "$schema": "https://langgra.ph/schema.json",
+  "python_version": "3.11",
+  "dependencies": ["."],
+  "graphs": {
+    "worldcup_chat": "./workflows/studio_graphs.py:worldcup_chat_graph",
+    "simple_qa": "./workflows/studio_graphs.py:simple_qa_graph",
+    "complex_flow": "./workflows/studio_graphs.py:complex_flow_graph",
+    "gossip": "./workflows/studio_graphs.py:gossip_graph"
+  },
+  "env": ".env",
+  "models": {
+    "qwen3-max": {
+      "provider": "openai",
+      "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+      "api_key": "${QWEN_API_KEY}"
+    }
+  }
+}

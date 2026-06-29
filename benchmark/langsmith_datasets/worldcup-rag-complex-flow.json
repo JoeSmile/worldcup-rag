@@ -1,0 +1,66 @@
+{
+  "dataset_name": "worldcup-rag-complex-flow",
+  "description": "complex_flow only. inputs.query; Target: complex_flow graph.",
+  "examples": [
+    {
+      "inputs": {
+        "query": "男子世界杯历史进球最多的球员是谁？进了几个球？"
+      },
+      "outputs": {
+        "reference": "应包含其一：克洛泽 / Klose；应包含其一：16 / 十六；期望工具：sql_query"
+      },
+      "metadata": {
+        "category": "进球纪录",
+        "expected_tool": "sql_query"
+      }
+    },
+    {
+      "inputs": {
+        "query": "男子世界杯前锋位置进球最多的是谁？"
+      },
+      "outputs": {
+        "reference": "应包含其一：克洛泽 / Klose；应包含其一：16；期望工具：sql_query"
+      },
+      "metadata": {
+        "category": "位置标杆",
+        "expected_tool": "sql_query"
+      }
+    },
+    {
+      "inputs": {
+        "query": "男子世界杯中场位置进球最多的是谁？"
+      },
+      "outputs": {
+        "reference": "应包含其一：库比拉斯 / Cubillas / 穆勒 / Müller；应包含其一：10；期望工具：sql_query"
+      },
+      "metadata": {
+        "category": "位置标杆",
+        "expected_tool": "sql_query"
+      }
+    },
+    {
+      "inputs": {
+        "query": "男子世界杯后卫位置进球最多的是谁？"
+      },
+      "outputs": {
+        "reference": "应包含其一：马特乌斯 / Matthäus；应包含其一：6；期望工具：sql_query"
+      },
+      "metadata": {
+        "category": "位置标杆",
+        "expected_tool": "sql_query"
+      }
+    },
+    {
+      "inputs": {
+        "query": "2002年世界杯中国队小组赛成绩怎么样？"
+      },
+      "outputs": {
+        "reference": "可含：3；可含：三场；可含：0；可含：负；可含：败；可含：未进球；期望工具：sql_query"
+      },
+      "metadata": {
+        "category": "中国队",
+        "expected_tool": "sql_query"
+      }
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "dataset_name": "worldcup-rag-gossip",
+  "description": "gossip only. inputs.query; Target: gossip graph.",
+  "examples": [
+    {
+      "inputs": {
+        "query": "有什么世界杯八卦或场外趣闻可以聊聊？"
+      },
+      "outputs": {
+        "reference": "基于知识库检索的公开世界杯花絮/轶事片段；不编造未经证实的绯闻。"
+      },
+      "metadata": {
+        "category": "八卦趣闻",
+        "expected_tool": "semantic_search"
+      }
+    },
+    {
+      "inputs": {
+        "query": "你谁啊"
+      },
+      "outputs": {
+        "reference": "我是世界杯足球问答助手，可回答赛果、球员数据与轻松闲聊类问题。"
+      },
+      "metadata": {
+        "category": "身份寒暄"
+      }
+    },
+    {
+      "inputs": {
+        "query": "你好"
+      },
+      "outputs": {
+        "reference": "简短寒暄并引导聊世界杯相关话题。"
+      },
+      "metadata": {
+        "category": "寒暄"
+      }
+    }
+  ]
+}

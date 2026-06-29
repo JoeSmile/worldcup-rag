@@ -1,7 +1,6 @@
 """Gossip workflow — casual chat about football stories, scandals, and fun facts.
 
-Uses semantic search over fact cards; does not invent private scandals.
-Future: dedicated gossip corpus or external news adapter.
+Retrieves fact cards via semantic search; composes replies with LLM (fallback: template).
 """
 
 from __future__ import annotations
@@ -9,9 +8,72 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from core.config import settings
 from tools import get_player_stats, resolve_player_id, semantic_search
 from workflows.base import MemoryAwareWorkflow, WorkflowContext
+from workflows.gossip_llm import compose_gossip_reply
 from workflows.route_keywords import FUN_KEYWORDS, GOSSIP_KEYWORDS
+
+_GOSSIP_EXTERNAL_TOOLS = frozenset({"semantic_search", "player_stats"})
+
+
+def _external_tools_from_trace(trace: list[str]) -> list[str]:
+    """API-facing tools_used — excludes internal step names like classify_topic."""
+    seen: list[str] = []
+    for name in trace:
+        if name in _GOSSIP_EXTERNAL_TOOLS and name not in seen:
+            seen.append(name)
+    return seen
+
+
+_IDENTITY_QUERY_RE = re.compile(
+    r"(你是谁|你谁啊|你是什么|你是啥|介绍一下你自己|你是哪位|你叫什么|你能做什么|你能干什么|你干什么用的)",
+)
+_GREETING_QUERY_RE = re.compile(
+    r"^(你好|嗨|hello|hi|hey|在吗|在不在|早上好|晚上好|午安|哈喽)[!！。.?？~～]*$",
+    re.IGNORECASE,
+)
+_FOOTBALL_HINT_RE = re.compile(
+    r"世界杯|足球|球员|进球|冠军|决赛|小组赛|女足|男足|贝利|梅西|马拉多纳|罗纳尔多|姆巴佩"
+)
+
+
+def _is_identity_query(query: str) -> bool:
+    return bool(_IDENTITY_QUERY_RE.search(query.strip()))
+
+
+def _is_greeting_query(query: str) -> bool:
+    return bool(_GREETING_QUERY_RE.match(query.strip()))
+
+
+def _needs_story_retrieval(ctx: WorkflowContext) -> bool:
+    """Skip embedding + pgvector when the query cannot benefit from fact-card search."""
+    query = ctx.query.strip()
+    if not query:
+        ctx.metadata["gossip_fast_path"] = "empty"
+        return False
+    if _is_identity_query(query):
+        mentions = ctx.metadata.get("player_mentions") or []
+        if _FOOTBALL_HINT_RE.search(query) or mentions:
+            return True
+        ctx.metadata["gossip_fast_path"] = "identity"
+        return False
+    if _is_greeting_query(query):
+        ctx.metadata["gossip_fast_path"] = "greeting"
+        return False
+
+    analysis = ctx.metadata.get("gossip_analysis") or {}
+    topics = analysis.get("topics") or []
+    mentions = ctx.metadata.get("player_mentions") or []
+
+    if "gossip" in topics or "fun_fact" in topics or mentions:
+        return True
+    if _FOOTBALL_HINT_RE.search(query):
+        return True
+
+    ctx.metadata["gossip_fast_path"] = "casual_no_hint"
+    return False
+
 
 def _classify_gossip(query: str) -> dict[str, Any]:
     topics: list[str] = []
@@ -53,7 +115,11 @@ def step_classify_topic(ctx: WorkflowContext) -> WorkflowContext:
 
 
 def step_retrieve_stories(ctx: WorkflowContext) -> WorkflowContext:
-    # Broad semantic pull — fact cards may contain match anecdotes, awards drama, etc.
+    if not _needs_story_retrieval(ctx):
+        ctx.metadata["story_hits"] = []
+        ctx.metadata["tools_trace"].append("retrieve_skipped")
+        return ctx
+
     search_query = f"世界杯 足球 {ctx.query}"
     hits = semantic_search(search_query, limit=5)
     ctx.metadata["story_hits"] = hits
@@ -84,56 +150,41 @@ def step_enrich_player_context(ctx: WorkflowContext) -> WorkflowContext:
 
 def step_compose_reply(ctx: WorkflowContext) -> WorkflowContext:
     analysis = ctx.metadata.get("gossip_analysis", {})
-    topics = ", ".join(analysis.get("topics", []))
+    topics = analysis.get("topics") or []
     hits = ctx.metadata.get("story_hits", [])
     player_ctx = ctx.metadata.get("player_context", [])
+    fast_path = ctx.metadata.get("gossip_fast_path")
+    trace_id = ctx.metadata.get("trace_id")
 
-    lines = [
-        "【Gossip · 闲聊模式】",
-        "",
-        "聊点轻松的——下面是知识库里和您问题相关的公开资料片段，",
-        "我不会编造未经证实的绯闻或隐私。",
-        "",
-    ]
+    answer, usage, compose_method = compose_gossip_reply(
+        ctx.query,
+        topics,
+        hits,
+        player_ctx,
+        fast_path=fast_path,
+        history=ctx.history,
+        memory_recent=ctx.metadata.get("memory_recent"),
+        trace_id=trace_id,
+    )
 
-    if player_ctx:
-        lines.append("相关球员公开世界杯履历：")
-        for item in player_ctx:
-            lines.append(f"- **{item['mention']}**：{item['preview'].replace(chr(10), ' ')}")
-        lines.append("")
+    retrieval_ran = "semantic_search" in ctx.metadata.get("tools_trace", [])
+    tool_name = "semantic_search" if retrieval_ran else None
+    if fast_path in ("identity", "greeting", "casual_no_hint", "empty"):
+        tool_name = None
 
-    if hits:
-        lines.append("检索到的趣闻 / 故事线索：")
-        for index, hit in enumerate(hits[:3], start=1):
-            content = (hit.get("content") or "").replace("\n", " ")
-            if len(content) > 200:
-                content = content[:200] + "…"
-            lines.append(
-                f"{index}. [{hit.get('collection')}] {hit.get('external_id')} "
-                f"(相似度 {hit.get('similarity', 0):.2f})"
-            )
-            lines.append(f"   {content}")
-        lines.append("")
-        lines.append(
-            "想听更完整的场外故事，可以具体问某届世界杯、某场比赛或某位球员的花边轶事。"
-        )
-    else:
-        lines.append(
-            "知识库里暂时没有匹配的八卦素材；当前数据以世界杯赛果、球员生涯统计为主。"
-        )
-        lines.append("你可以换个更具体的问题，例如「1998 年世界杯有什么经典花絮？」")
-
-    lines.append("")
-    lines.append(f"（话题类型：{topics} · Mock 闲聊工作流，后续可接新闻/社交数据源）")
+    tools_trace = list(ctx.metadata.get("tools_trace", []))
+    tools_used = _external_tools_from_trace(tools_trace)
 
     ctx.set_answer(
-        "\n".join(lines),
-        tool_name="semantic_search",
-        tools_used=list(ctx.metadata.get("tools_trace", [])),
+        answer,
+        tool_name=tool_name,
+        tools_used=tools_used,
+        tools_trace=tools_trace,
         sql_generated=None,
-        usage={"total_tokens": 0, "prompt_tokens": 0, "completion_tokens": 0},
-        mock=True,
-        gossip_topics=analysis.get("topics"),
+        usage=usage,
+        model=settings.router_model_name if compose_method == "llm" else None,
+        compose_method=compose_method,
+        gossip_topics=topics,
         story_hit_count=len(hits),
     )
     ctx.metadata["tools_trace"].append("compose_reply")
