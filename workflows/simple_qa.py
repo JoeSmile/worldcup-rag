@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from functools import lru_cache
 from typing import Dict, List
 
 from langchain.agents import create_agent
@@ -20,6 +21,7 @@ from tools import (
     semantic_search as search_worldcup_knowledge,
 )
 from workflows.base import MemoryAwareWorkflow, Workflow, WorkflowContext
+from workflows.chat_metadata import extract_chat_metadata
 
 logger = get_logger("workflows.simple_qa")
 
@@ -52,7 +54,7 @@ def sql_query(sql: str) -> str:
     return _to_json(execute_sql(sql))
 
 
-def _build_agent():
+def _build_agent(system_prompt: str | None = None):
     llm = ChatOpenAI(
         model=settings.model_name,
         base_url=settings.llm_base_url,
@@ -62,12 +64,36 @@ def _build_agent():
     return create_agent(
         model=llm,
         tools=[search_players, semantic_search, player_stats, sql_query],
-        system_prompt=SYSTEM_PROMPT,
+        system_prompt=system_prompt or SYSTEM_PROMPT,
         debug=settings.agent_debug,
     )
 
 
-from workflows.chat_metadata import extract_chat_metadata
+def build_simple_qa_messages(
+    query: str,
+    *,
+    history: List[Dict[str, str]] | None = None,
+    memory_recent: List[Dict[str, str]] | None = None,
+) -> List[Dict[str, str]]:
+    """Build agent messages for simple_qa (production + Studio share the same rules)."""
+    messages: List[Dict[str, str]] = []
+    if history:
+        for item in history[-5:]:
+            messages.append({"role": "user", "content": item["user"]})
+            messages.append({"role": "assistant", "content": item["assistant"]})
+    elif memory_recent:
+        for msg in memory_recent:
+            messages.append({"role": msg["role"], "content": msg["content"]})
+    messages.append({"role": "user", "content": query})
+    return messages
+
+
+@lru_cache(maxsize=8)
+def get_agent_for_prompt(system_prompt: str):
+    """Studio-only: cached agent keyed by full system prompt (Manage Assistants variants)."""
+    return _build_agent(system_prompt=system_prompt)
+
+
 class SimpleQAWorkflow(MemoryAwareWorkflow):
     def __init__(self, memory: SessionMemory | None = None):
         self._agent_executor: object | None = None
@@ -87,18 +113,11 @@ class SimpleQAWorkflow(MemoryAwareWorkflow):
         return self._agent_executor
 
     def _prepare_messages(self, ctx: WorkflowContext) -> WorkflowContext:
-        messages: List[Dict[str, str]] = []
-
-        if ctx.history:
-            for item in ctx.history[-5:]:
-                messages.append({"role": "user", "content": item["user"]})
-                messages.append({"role": "assistant", "content": item["assistant"]})
-        else:
-            for msg in ctx.metadata.get("memory_recent") or []:
-                messages.append({"role": msg["role"], "content": msg["content"]})
-
-        messages.append({"role": "user", "content": ctx.query})
-        ctx.messages = messages
+        ctx.messages = build_simple_qa_messages(
+            ctx.query,
+            history=ctx.history,
+            memory_recent=ctx.metadata.get("memory_recent"),
+        )
         return ctx
 
     def _invoke_agent(self, ctx: WorkflowContext) -> WorkflowContext:

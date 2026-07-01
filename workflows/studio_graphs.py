@@ -13,15 +13,15 @@ from __future__ import annotations
 from typing import Any, TypedDict
 
 from langgraph.graph import END, StateGraph
+from langgraph.runtime import Runtime
 
 from core.config import settings
 from workflows.base import Workflow, WorkflowContext, WorkflowStep
 from workflows.chat_metadata import extract_chat_metadata
 from workflows.complex_flow import complex_flow_workflow
 from workflows.gossip import gossip_workflow
-from workflows.simple_qa import _build_agent
-
-_simple_qa_agent: Any | None = None
+from workflows.simple_qa import build_simple_qa_messages, get_agent_for_prompt
+from workflows.studio_context import StudioContext
 
 
 class StudioGraphState(TypedDict, total=False):
@@ -143,32 +143,34 @@ def _finalize_step_output(state: StudioGraphState, workflow_name: str) -> dict[s
 
 
 def _normalize_simple_qa_input(state: StudioGraphState) -> dict[str, Any]:
-    """Map Studio `query` field to agent `messages` (same as gossip/complex_flow UX)."""
-    messages = state.get("messages")
-    if messages:
+    """Map Studio `query` + optional `history` to agent `messages` (aligned with /chat)."""
+    if state.get("messages"):
         return {}
     query = (state.get("query") or "").strip()
     if not query:
         return {}
+    metadata = state.get("metadata") or {}
     return {
         "query": query,
-        "messages": [{"role": "user", "content": query}],
+        "messages": build_simple_qa_messages(
+            query,
+            history=state.get("history"),
+            memory_recent=metadata.get("memory_recent"),
+        ),
     }
 
 
-def _get_simple_qa_agent():
-    global _simple_qa_agent
-    if _simple_qa_agent is None:
-        _simple_qa_agent = _build_agent()
-    return _simple_qa_agent
-
-
-def _run_simple_qa_agent(state: StudioGraphState) -> dict[str, Any]:
+def _run_simple_qa_agent(
+    state: StudioGraphState,
+    runtime: Runtime[StudioContext],
+) -> dict[str, Any]:
     messages = state.get("messages") or []
     trace_id = (state.get("metadata") or {}).get("trace_id")
     run_config = settings.langsmith_run_config("simple_qa", trace_id=trace_id)
+    prompt = runtime.context.simple_qa_system_prompt
+    agent = get_agent_for_prompt(prompt)
     try:
-        result = _get_simple_qa_agent().invoke({"messages": messages}, config=run_config)
+        result = agent.invoke({"messages": messages}, config=run_config)
         return {"messages": result["messages"], "error": None}
     except Exception as exc:
         return {"messages": messages, "error": str(exc)}
@@ -207,7 +209,7 @@ def _finalize_simple_qa_output(state: StudioGraphState) -> dict[str, Any]:
 
 
 def _build_simple_qa_studio_graph():
-    builder = StateGraph(StudioGraphState)
+    builder = StateGraph[StudioGraphState, StudioContext, StudioGraphState, StudioGraphState](StudioGraphState, context_schema=StudioContext)
     builder.add_node("normalize_input", _normalize_simple_qa_input)
     builder.add_node("agent", _run_simple_qa_agent)
     builder.add_node("finalize_output", _finalize_simple_qa_output)

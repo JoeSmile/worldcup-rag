@@ -200,6 +200,8 @@ langgraph dev --tunnel
 
 `query`, `answer`, `workflow`, `graph`, `tools_used`, `tool_name`, `error`
 
+**Studio 可编辑 system prompt（`simple_qa`）**：左下角 **Manage Assistants** → 编辑 `simple_qa_system_prompt`（默认与 `prompts.py` 的 `SYSTEM_PROMPT` 相同）。生产 `POST /chat` 不受影响。
+
 说明：`complex_flow` / `gossip` 在 Studio 中按 step 节点可视化；生产 Chat 仍走 `app.py` / `agent.chat`（含 router 自动选路）。内部调试字段（如 gossip `tools_trace`）仅在 `metadata` 中，不进入 `tools_used`。
 
 **Evaluate 注意**：
