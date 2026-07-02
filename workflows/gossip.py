@@ -115,6 +115,13 @@ def step_classify_topic(ctx: WorkflowContext) -> WorkflowContext:
 
 
 def step_retrieve_stories(ctx: WorkflowContext) -> WorkflowContext:
+    trace = ctx.metadata.setdefault("tools_trace", [])
+    if ctx.metadata.get("studio_enable_semantic_search") is False:
+        ctx.metadata["story_hits"] = []
+        if "retrieve_skipped" not in trace:
+            trace.append("retrieve_skipped")
+        return ctx
+
     if not _needs_story_retrieval(ctx):
         ctx.metadata["story_hits"] = []
         ctx.metadata["tools_trace"].append("retrieve_skipped")
@@ -128,6 +135,11 @@ def step_retrieve_stories(ctx: WorkflowContext) -> WorkflowContext:
 
 
 def step_enrich_player_context(ctx: WorkflowContext) -> WorkflowContext:
+    if ctx.metadata.get("studio_enable_player_stats") is False:
+        # Thread/checkpoint may still carry player_context from a prior turn — clear it.
+        ctx.metadata["player_context"] = []
+        return ctx
+
     snippets: list[dict[str, Any]] = []
     for name in ctx.metadata.get("player_mentions", []):
         player_id = resolve_player_id(name)
@@ -200,3 +212,37 @@ gossip_workflow = MemoryAwareWorkflow(
         step_compose_reply,
     ],
 )
+
+
+def apply_gossip_studio_controls(
+    ctx: WorkflowContext,
+    *,
+    enable_semantic_search: bool,
+    enable_player_stats: bool,
+) -> None:
+    """Inject Studio Assistant flags into metadata (Studio-only; production ignores)."""
+    ctx.metadata["studio_enable_semantic_search"] = enable_semantic_search
+    ctx.metadata["studio_enable_player_stats"] = enable_player_stats
+
+
+def apply_gossip_studio_skip(step_name: str, ctx: WorkflowContext) -> WorkflowContext:
+    """No-op a gossip step with safe defaults so downstream compose still runs."""
+    skipped = list(ctx.metadata.get("studio_skipped_steps") or [])
+    if step_name not in skipped:
+        skipped.append(step_name)
+    ctx.metadata["studio_skipped_steps"] = skipped
+
+    if step_name == "step_classify_topic":
+        ctx.metadata.setdefault("gossip_analysis", {"topics": ["casual_football"]})
+        ctx.metadata.setdefault("player_mentions", [])
+        ctx.metadata.setdefault("tools_trace", ["classify_topic"])
+    elif step_name == "step_retrieve_stories":
+        ctx.metadata.setdefault("story_hits", [])
+        trace = list(ctx.metadata.get("tools_trace") or [])
+        if "retrieve_skipped" not in trace:
+            trace.append("retrieve_skipped")
+        ctx.metadata["tools_trace"] = trace
+    elif step_name == "step_enrich_player_context":
+        ctx.metadata.setdefault("player_context", [])
+
+    return ctx

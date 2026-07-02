@@ -19,9 +19,17 @@ from core.config import settings
 from workflows.base import Workflow, WorkflowContext, WorkflowStep
 from workflows.chat_metadata import extract_chat_metadata
 from workflows.complex_flow import complex_flow_workflow
-from workflows.gossip import gossip_workflow
+from workflows.gossip import (
+    apply_gossip_studio_controls,
+    apply_gossip_studio_skip,
+    gossip_workflow,
+    step_classify_topic,
+    step_compose_reply,
+    step_enrich_player_context,
+    step_retrieve_stories,
+)
 from workflows.simple_qa import build_simple_qa_messages, get_agent_for_prompt
-from workflows.studio_context import StudioContext
+from workflows.studio_context import GossipStudioContext, StudioContext
 
 
 class StudioGraphState(TypedDict, total=False):
@@ -220,6 +228,60 @@ def _build_simple_qa_studio_graph():
     return builder.compile()
 
 
+def _compile_gossip_studio_graph():
+    """Gossip graph with Studio Assistant controls (skip steps / disable tools)."""
+    workflow_name = gossip_workflow.name
+    steps = [
+        step_classify_topic,
+        step_retrieve_stories,
+        step_enrich_player_context,
+        step_compose_reply,
+    ]
+    step_names = [step.__name__ for step in steps]
+
+    builder = StateGraph[
+        StudioGraphState,
+        GossipStudioContext,
+        StudioGraphState,
+        StudioGraphState,
+    ](StudioGraphState, context_schema=GossipStudioContext)
+
+    for step_fn in steps:
+        step_name = step_fn.__name__
+
+        def _run_gossip_step(
+            state: StudioGraphState,
+            runtime: Runtime[GossipStudioContext],
+            step_fn: WorkflowStep = step_fn,
+            step_name: str = step_name,
+        ) -> StudioGraphState:
+            ctx = _ctx_from_state(state)
+            studio = runtime.context
+            if step_name in studio.skip_steps:
+                ctx = apply_gossip_studio_skip(step_name, ctx)
+            else:
+                apply_gossip_studio_controls(
+                    ctx,
+                    enable_semantic_search=studio.enable_semantic_search,
+                    enable_player_stats=studio.enable_player_stats,
+                )
+                ctx = step_fn(ctx)
+            return _state_from_ctx(ctx, workflow_name)
+
+        builder.add_node(step_name, _run_gossip_step)
+
+    def _finalize(state: StudioGraphState) -> dict[str, Any]:
+        return _finalize_step_output(state, workflow_name)
+
+    builder.add_node("finalize_output", _finalize)
+    builder.set_entry_point(step_names[0])
+    for current, nxt in zip(step_names, step_names[1:]):
+        builder.add_edge(current, nxt)
+    builder.add_edge(step_names[-1], "finalize_output")
+    builder.add_edge("finalize_output", END)
+    return builder.compile()
+
+
 def _compile_step_workflow(workflow: Workflow):
     """Wrap a sequential Workflow as a LangGraph with one node per step."""
 
@@ -257,7 +319,7 @@ def _compile_step_workflow(workflow: Workflow):
 simple_qa_graph = _build_simple_qa_studio_graph()
 
 complex_flow_graph = _compile_step_workflow(complex_flow_workflow)
-gossip_graph = _compile_step_workflow(gossip_workflow)
+gossip_graph = _compile_gossip_studio_graph()
 
 # Dataset Evaluate: one target reads inputs.query + inputs.graph (like run_agent)
 worldcup_chat_graph = _build_worldcup_chat_graph()

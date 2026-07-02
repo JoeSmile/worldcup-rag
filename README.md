@@ -134,7 +134,7 @@ POST /chat
 - 规则 router 默认开启；`ROUTER_LLM_ENABLED=true` 时，对指代/续问类短句用小模型补路由
 - 所有 workflow 共享同一 Redis memory，按 `session_id` 隔离
 - 目前 **仅 `simple_qa` 将 memory 注入 Agent prompt**；`complex_flow` / `gossip` 会写入 memory 供后续轮次与 router 使用
-- `**complex_flow`**：LLM **迭代 replan**（每步 SQL 结果影响下一步；**最多 3 轮 replan / 3 条 SQL**）→ 总结；无 API Key 时回退**有限规则模板**（梅西/C罗对比、带位置或「最多/榜单」类排行、年份/中国队等；无匹配则 `semantic_search`）。LLM 显式 `done` 且无 SQL 时 `plan_method=replan_done`（语义总结）；无效 step / 解析失败仍走规则或语义回退。
+- **complex_flow**：LLM **迭代 replan**（每步 SQL 结果影响下一步；**最多 3 轮 replan / 3 条 SQL**）→ 总结；无 API Key 时回退**有限规则模板**（梅西/C罗对比、带位置或「最多/榜单」类排行、年份/中国队等；无匹配则 `semantic_search`）。LLM 显式 `done` 且无 SQL 时 `plan_method=replan_done`（语义总结）；无效 step / 解析失败仍走规则或语义回退。
 
 ### Session 运维 API
 
@@ -189,10 +189,12 @@ langgraph dev --tunnel
 
 在 Studio 中选择图 **`worldcup_chat`**（Dataset Evaluate 推荐）、**`simple_qa`**、**`complex_flow`** 或 **`gossip`**。
 
-| 图 | 用途 | 典型输入 |
-|----|------|----------|
-| `worldcup_chat` | 与生产 `agent.chat` 一致；按 `inputs.graph` 分流 | `{"query": "...", "graph": "simple_qa"}` |
-| `simple_qa` / `complex_flow` / `gossip` | 单 workflow 调试（step 可视化） | `{"query": "..."}` |
+
+| 图                                       | 用途                                      | 典型输入                                     |
+| --------------------------------------- | --------------------------------------- | ---------------------------------------- |
+| `worldcup_chat`                         | 与生产 `agent.chat` 一致；按 `inputs.graph` 分流 | `{"query": "...", "graph": "simple_qa"}` |
+| `simple_qa` / `complex_flow` / `gossip` | 单 workflow 调试（step 可视化）                 | `{"query": "..."}`                       |
+
 
 `simple_qa` 也支持 `{"messages": [...]}`。生产 API（`agent.chat`）会自动路由到 `simple_qa` / `complex_flow` / `gossip`。
 
@@ -201,6 +203,18 @@ langgraph dev --tunnel
 `query`, `answer`, `workflow`, `graph`, `tools_used`, `tool_name`, `error`
 
 **Studio 可编辑 system prompt（`simple_qa`）**：左下角 **Manage Assistants** → 编辑 `simple_qa_system_prompt`（默认与 `prompts.py` 的 `SYSTEM_PROMPT` 相同）。生产 `POST /chat` 不受影响。
+
+**Studio 调试 gossip（`gossip` 图 + Manage Assistants）**：选 **`gossip`** 图后，Assistant 可配置：
+
+
+| 字段                       | 作用                                                    |
+| ------------------------ | ----------------------------------------------------- |
+| `skip_steps`             | 跳过整步节点，如 `["step_retrieve_stories"]`（不跑检索，直接 compose） |
+| `enable_semantic_search` | `false` 时检索步不调 `semantic_search`                      |
+| `enable_player_stats`    | `false` 时 enrich 步不调 `player_stats`                   |
+
+
+合法 `skip_steps` 名：`step_classify_topic`、`step_retrieve_stories`、`step_enrich_player_context`、`step_compose_reply`。生产 `POST /chat` 不受影响。
 
 说明：`complex_flow` / `gossip` 在 Studio 中按 step 节点可视化；生产 Chat 仍走 `app.py` / `agent.chat`（含 router 自动选路）。内部调试字段（如 gossip `tools_trace`）仅在 `metadata` 中，不进入 `tools_used`。
 
@@ -228,13 +242,15 @@ python scripts/run_langsmith_evaluate.py
 
 Evaluator UI 路径映射：
 
-| 变量 | 路径 |
-|------|------|
-| userQuestion | `input.query` |
-| graph (trace) | `output.workflow` |
-| graph (dataset) | `input.graph` |
+
+| 变量              | 路径                          |
+| --------------- | --------------------------- |
+| userQuestion    | `input.query`               |
+| graph (trace)   | `output.workflow`           |
+| graph (dataset) | `input.graph`               |
 | referenceOutput | `referenceOutput.reference` |
-| assistantAnswer | `output.answer` |
+| assistantAnswer | `output.answer`             |
+
 
 ## Monitoring（Prometheus + Grafana）
 
@@ -348,4 +364,5 @@ PYTHONPATH=. python3 -c "from tools import execute_sql; print(execute_sql('SELEC
 ./k8s/local/undeploy.sh
 kind delete cluster --name worldcup-rag   # 若用 kind
 ```
+
 
