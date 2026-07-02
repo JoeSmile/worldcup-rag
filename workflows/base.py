@@ -57,7 +57,7 @@ class Workflow(ABC):
 
         if not ctx.query:
             return self._attach_session_fields(
-                self._error_response("query cannot be empty"),
+                self._error_response("query cannot be empty", workflow=self.name),
                 session_id=session_id,
             )
 
@@ -84,14 +84,14 @@ class Workflow(ABC):
                 extra=log_extra(workflow=self.name, error=ctx.error, trace_id=trace_id),
             )
             return self._attach_session_fields(
-                self._error_response(ctx.error),
+                self._error_response(ctx.error, workflow=self.name),
                 session_id=session_id,
             )
 
         answer = ctx.final_answer
         if not answer:
             return self._attach_session_fields(
-                self._error_response("workflow finished without an answer"),
+                self._error_response("workflow finished without an answer", workflow=self.name),
                 session_id=session_id,
             )
 
@@ -115,6 +115,8 @@ class Workflow(ABC):
         }
         if ctx.metadata.get("model") is not None:
             response["model"] = ctx.metadata.get("model")
+        if ctx.metadata.get("mcp_gateway_mode") is not None:
+            response["mcp_gateway_mode"] = ctx.metadata.get("mcp_gateway_mode")
         if session_id:
             response["session_id"] = session_id
             response["memory_persisted"] = ctx.metadata.get("memory_persisted", False)
@@ -141,8 +143,8 @@ class Workflow(ABC):
         return result.get("answer")
 
     @staticmethod
-    def _error_response(message: str) -> Dict[str, Any]:
-        return {
+    def _error_response(message: str, workflow: str | None = None) -> Dict[str, Any]:
+        response: Dict[str, Any] = {
             "answer": f"抱歉，处理您的问题时出错：{message}",
             "tool_name": None,
             "tools_used": [],
@@ -154,6 +156,9 @@ class Workflow(ABC):
             },
             "error": message,
         }
+        if workflow:
+            response["workflow"] = workflow
+        return response
 
 
 class StepWorkflow(Workflow):

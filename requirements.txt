@@ -14,3 +14,4 @@ cachetools==5.5.2
 sqlparse==0.5.3
 prometheus-client==0.21.1
 langgraph-cli>=0.2.11
+mcp>=1.2.0

@@ -1,14 +1,7 @@
 # Reference Prometheus scrape config (local / manual installs).
 #
-# Docker Compose generates prometheus.yml at container start from
-# PROMETHEUS_SCRAPE_TARGET — this file is for reference only.
-# Default target assumes the API runs on the host (python3 app.py) and Prometheus
-# runs in Docker — works on Docker Desktop (Mac/Windows) with extra_hosts below.
-#
-# Override for other setups:
-#   - API in K8s/Docker service: set PROMETHEUS_SCRAPE_TARGET=api:8000 in compose
-#   - Linux host API only:         host.docker.internal:8000 (needs host-gateway)
-#   - Linux bridge IP:             172.17.0.1:8000
+# Docker Compose generates prometheus.yml at container start — see docker-compose.yml.
+# Default targets assume API on host + MCP stack in compose (--profile mcp).
 
 global:
   scrape_interval: 15s
@@ -19,3 +12,13 @@ scrape_configs:
     metrics_path: /metrics
     static_configs:
       - targets: ["host.docker.internal:8000"]
+
+  - job_name: mcp-gateway
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["localhost:8080"]
+
+  - job_name: mcp-stack-exporter
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["localhost:8081"]

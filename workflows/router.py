@@ -1,4 +1,4 @@
-"""Route user queries to simple_qa, complex_flow, or gossip."""
+"""Route user queries to simple_qa, complex_flow, gossip, or external_qa."""
 
 from __future__ import annotations
 
@@ -6,7 +6,9 @@ from typing import Any, Optional
 
 from core.config import settings
 from core.logger import get_logger, log_extra
+from core.mcp_gateway_config import get_mcp_gateway_config
 from core.memory import get_session_memory
+from workflows.external_lookup import needs_external_lookup
 from workflows.llm_router import (
     has_strong_rule_signal,
     is_ambiguous,
@@ -23,13 +25,16 @@ logger = get_logger("workflows.router")
 
 
 def route(query: str) -> str:
-    """Return workflow name: gossip | complex_flow | simple_qa."""
+    """Return workflow name: gossip | external_qa | complex_flow | simple_qa."""
     text = query.strip()
     if not text:
         return "simple_qa"
 
     if any(kw in text for kw in GOSSIP_KEYWORDS):
         return "gossip"
+
+    if get_mcp_gateway_config().enabled and needs_external_lookup(text):
+        return "external_qa"
 
     if prefers_simple_qa(text):
         return "simple_qa"
@@ -112,6 +117,7 @@ class WorkflowRouter:
     def list_routes(self) -> dict[str, str]:
         return {
             "gossip": "足球八卦、绯闻、趣闻、花絮等闲聊",
+            "external_qa": "2026+ / 实时 / 库外事实（MCP Gateway 外部能力）",
             "complex_flow": "对比、排行、多条件统计等复杂查询",
             "simple_qa": "默认：球员数据、赛果、单一事实问答",
         }

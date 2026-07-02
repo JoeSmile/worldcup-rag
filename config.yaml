@@ -56,3 +56,18 @@ metrics:
   enabled: true
   public_endpoint: true   # local dev; production/K8s: false + auth_token
   auth_token: null
+
+# MCP Gateway (Mode A: external_qa → remote gateway; article flow list/discover/execute)
+mcp_gateway:
+  enabled: false
+  transport: http
+  url: http://localhost:8080/mcp
+  embed_gateway_process: false   # dev-only: spawn uvx gateway inside API process
+  command: uvx
+  args: ["agent-mcp-gateway"]
+  config_path: mcp/gateway/.mcp.json
+  rules_path: mcp/gateway/.mcp-gateway-rules.json
+  default_agent: worldcup-external
+  external_agent_id: worldcup-external
+  timeout_ms: 30000
+  dev_direct_fallback: true   # Gateway 不可达时直连 mcp/servers/*（本地 dev）

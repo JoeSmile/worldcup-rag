@@ -10,6 +10,9 @@ from agent import chat
 from core.chat_response import enrich_chat_result
 from core.chat_validation import validate_history_session_conflict
 from core.logger import bind_trace_id, get_logger, log_extra, new_trace_id
+from core.mcp_gateway_client import get_mcp_gateway_client
+from core.mcp_gateway_config import get_mcp_gateway_config
+from core.mcp_gateway_health import format_startup_alert_line, get_mcp_gateway_status, startup_alert
 from core.memory import get_session_memory
 from core.metrics import (
     authorize_metrics_request,
@@ -41,7 +44,27 @@ app.add_middleware(
 @app.on_event("startup")
 async def startup() -> None:
     init_observability()
+    gateway_cfg = get_mcp_gateway_config()
+    if gateway_cfg.enabled and gateway_cfg.embed_gateway_process:
+        try:
+            get_mcp_gateway_client().start()
+        except Exception as exc:
+            logger.warning("mcp gateway stdio warmup failed", extra=log_extra(error=str(exc)))
+    alert = startup_alert(config=gateway_cfg)
+    if alert:
+        logger.error(
+            "MCP Gateway unavailable at startup",
+            extra=log_extra(**alert),
+        )
+        # Plain stderr banner — JSON logs are easy to miss in local dev.
+        print(f"\n⚠️  MCP GATEWAY DOWN: {format_startup_alert_line(alert)}\n", flush=True)
     logger.info("application started")
+
+
+@app.on_event("shutdown")
+async def shutdown() -> None:
+    if get_mcp_gateway_config().embed_gateway_process:
+        get_mcp_gateway_client().shutdown()
 
 
 class ChatRequest(BaseModel):
@@ -68,6 +91,8 @@ class ChatResponse(BaseModel):
     session_id: Optional[str] = None
     memory_persisted: Optional[bool] = None
     post_chat_scheduled: Optional[Dict[str, bool]] = None
+    mcp_gateway_mode: Optional[str] = None
+    error: Optional[str] = None
 
 
 @app.middleware("http")
@@ -187,7 +212,17 @@ async def ready():
             status_code=503,
             detail=SecurityFilter.safe_error_detail(exc),
         ) from exc
-    return {"status": "ready", "database": result[0][0] == 1}
+
+    payload: dict[str, object] = {
+        "status": "ready",
+        "database": result[0][0] == 1,
+        "mcp_gateway": get_mcp_gateway_status(),
+    }
+    mcp = payload["mcp_gateway"]
+    if isinstance(mcp, dict) and mcp.get("enabled") and mcp.get("status") == "down":
+        payload["degraded"] = True
+        payload["warnings"] = [str(mcp.get("alert") or "mcp gateway unreachable")]
+    return payload
 
 
 @app.get("/cache/stats")

@@ -58,3 +58,7 @@ benchmark/result.*.json
 
 # LangGraph local dev server
 .langgraph_api/
+
+# MCP Gateway local config (copy from mcp/gateway/*.example)
+mcp/gateway/.mcp.json
+mcp/gateway/.mcp-gateway-rules.json

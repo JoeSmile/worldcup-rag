@@ -252,6 +252,46 @@ Evaluator UI 路径映射：
 | assistantAnswer | `output.answer`             |
 
 
+## MCP 子项目（monorepo · `mcp/`）
+
+外部能力独立在 **`mcp/`** 子目录，与 `workflows/` 解耦；后续 MCP Server 都放 `mcp/servers/<name>/`。
+
+```text
+mcp/
+├── gateway/          # agent-mcp-gateway：.mcp.json + rules
+├── servers/          # 下游 MCP（worldcup_live、未来 brave 等）
+└── monitoring/       # Prometheus 探针 → Grafana「MCP Stack」
+```
+
+**一键启动（含 Gateway + Grafana 监控）**
+
+```bash
+./scripts/dev-up.sh              # postgres, redis, prometheus, grafana, mcp-gateway, mcp-metrics
+./scripts/dev-up.sh --with-api   # 同上 + app.py（MCP Gateway Client 已启用）
+# 或：make dev-up / make dev-api
+```
+
+**单独停栈**：`./scripts/dev-down.sh` 或 `make dev-down`
+
+库内 RAG 覆盖 1930–2022；**2026+ / 实时**走 `external_qa`，API 通过 MCP HTTP 连独立 Gateway（`list_servers` → `get_server_tools` → `execute_tool`）。
+
+```text
+POST /chat → external_qa → MCP_GATEWAY_URL
+    → mcp-gateway (:8080)
+        → mcp/servers/worldcup_live …（只改 mcp/gateway/.mcp.json）
+```
+
+**扩展下游（不改 worldcup 代码）**
+
+1. 复制 `mcp/servers/_template/` → `mcp/servers/<name>/`
+2. 编辑 `mcp/gateway/.mcp.json` + `.mcp-gateway-rules.json`
+3. `docker compose --profile mcp restart mcp-gateway`
+
+详见 [`mcp/README.md`](mcp/README.md)。
+
+**配置**（`config.yaml` → `mcp_gateway`）：`enabled`、`url`（默认 `http://localhost:8080/mcp`）、`embed_gateway_process`（仅 dev 内嵌 stdio）。
+
+
 ## Monitoring（Prometheus + Grafana）
 
 指标由 `prometheus_client` 暴露在 `GET /metrics`：
@@ -264,6 +304,15 @@ Evaluator UI 路径映射：
 | `worldcup_cache_lookup_total`    | 缓存查找（l1 / l2 / semantic / miss）                                           |
 | `http_requests_total`            | 全路由 HTTP 计数                                                               |
 | `worldcup_llm_tokens_total`      | LLM token（仅 `prompt_tokens` / `completion_tokens`；不含 `total_tokens` 重复计数） |
+
+**MCP 栈**（`./scripts/dev-up.sh` 启动 `--profile mcp` 后）：
+
+| 指标 | 含义 |
+| --- | --- |
+| `worldcup_mcp_gateway_up` | Gateway `/health` 探针（mcp-metrics :8081） |
+| `worldcup_mcp_gateway_metrics_up` | Gateway 原生 `/metrics` 是否可达 |
+| `worldcup_mcp_server_configured{server}` | `.mcp.json` 中已配置的下游 Server |
+| Grafana 仪表盘 | **World Cup RAG → MCP Stack** |
 
 
 **配置**（`config.yaml` → `metrics`，或环境变量）：
