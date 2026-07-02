@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "worldcup-live": {
+      "description": "Live / 2026+ World Cup lookup (in-repo stub; add brave-search for web)",
+      "command": "python3",
+      "args": ["mcp/servers/worldcup_live/server.py"],
+      "env": {
+        "PYTHONPATH": "."
+      }
+    }
+  }
+}

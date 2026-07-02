@@ -1,0 +1,108 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "panels": [
+    {
+      "title": "MCP Gateway health (probe)",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "worldcup_mcp_gateway_up",
+          "legendFormat": "gateway"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "DOWN" }, "1": { "text": "UP" } } }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "title": "MCP Gateway /metrics reachable",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 0 },
+      "targets": [
+        {
+          "expr": "worldcup_mcp_gateway_metrics_up",
+          "legendFormat": "metrics"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "DOWN" }, "1": { "text": "UP" } } }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "title": "Configured downstream MCP servers",
+      "type": "timeseries",
+      "gridPos": { "h": 6, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "expr": "worldcup_mcp_server_configured",
+          "legendFormat": "{{server}}"
+        }
+      ]
+    },
+    {
+      "title": "MCP probe rate",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+      "targets": [
+        {
+          "expr": "sum(rate(worldcup_mcp_probe_total[5m])) by (target, result)",
+          "legendFormat": "{{target}} {{result}}"
+        }
+      ]
+    },
+    {
+      "title": "Gateway health probe duration (s)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+      "targets": [
+        {
+          "expr": "worldcup_mcp_gateway_probe_seconds",
+          "legendFormat": "probe_seconds"
+        }
+      ]
+    },
+    {
+      "title": "Prometheus scrape: mcp-gateway job",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 14 },
+      "targets": [
+        {
+          "expr": "up{job=\"mcp-gateway\"}",
+          "legendFormat": "up"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["worldcup-rag", "mcp"],
+  "time": { "from": "now-1h", "to": "now" },
+  "title": "MCP Stack",
+  "uid": "worldcup-mcp-stack",
+  "version": 1
+}

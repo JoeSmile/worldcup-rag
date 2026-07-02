@@ -1,0 +1,18 @@
+#!/usr/bin/env python3
+"""Template MCP server — copy to mcp/servers/<name>/ and register in mcp/gateway/.mcp.json."""
+
+from __future__ import annotations
+
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("your-server-name")
+
+
+@mcp.tool()
+def example_tool(query: str) -> str:
+    """Describe what this tool does for gateway discovery."""
+    return f"stub: {query}"
+
+
+if __name__ == "__main__":
+    mcp.run(transport="stdio")

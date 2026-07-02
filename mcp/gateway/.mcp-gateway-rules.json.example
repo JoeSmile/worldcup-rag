@@ -1,0 +1,17 @@
+{
+  "agents": {
+    "worldcup-external": {
+      "allow": {
+        "servers": ["worldcup-live", "brave-search"]
+      }
+    },
+    "worldcup-complex-flow": {
+      "allow": {
+        "servers": ["worldcup-live"]
+      }
+    }
+  },
+  "defaults": {
+    "deny_on_missing_agent": false
+  }
+}
